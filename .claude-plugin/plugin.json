@@ -1,6 +1,6 @@
 {
   "name": "speccen",
-  "version": "26.1026.4",
+  "version": "26.1026.5",
   "description": "A structured, autonomous or phase-gated workflow for software development and refactoring, governed by a Software Architect and supported by AI. Enforces deep analysis before implementation through progressive implementation phases.",
   "author": {
     "name": "Speccen"
