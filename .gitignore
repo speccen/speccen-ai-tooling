@@ -1,0 +1,7 @@
+
+.DS_Store
+
+.worktrees/
+
+# speccen: personal bundle config override — never committed
+speccen-config.local.yaml

@@ -1,0 +1,39 @@
+{
+  "name": "speccen-ai-toolkit",
+  "owner": {
+    "name": "Cucurb IT BV"
+  },
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/speccen/speccen-ai-toolkit"
+  },
+  "metadata": {
+    "description": "Speccen — a structured, autonomous or phase-gated process for software development and refactoring governed by a Software Architect.",
+    "version": "26.1026.3"
+  },
+  "plugins": [
+    {
+      "name": "speccen",
+      "source": "./",
+      "description": "Structured autonomous or phase-gated workflow for software development and refactoring. Enforces deep analysis before implementation through six progressive phases, governed by a Software Architect.",
+      "version": "26.1026.3",
+      "author": {
+        "name": "Speccen"
+      },
+      "license": "MIT",
+      "keywords": [
+        "spec-driven development",
+        "workflow",
+        "analysis",
+        "refactoring",
+        "architecture",
+        "software-development",
+        "autonomous",
+        "gated",
+        "adr"
+      ],
+      "category": "workflow",
+      "strict": false
+    }
+  ]
+}
