@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pump Safety Rules Refactor — WPX-1042</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+
+/* Layout: one reading column (~70ch) with full-width figures that scroll sideways on phones; C4 levels run top to bottom. */
+:root {
+  --bg: #f4f6f8;
+  --panel: #ffffff;
+  --sunk: #eaeef2;
+  --ink: #17202b;
+  --muted: #5a6574;
+  --line: #c3ccd6;
+  --accent: #0a6c88;
+  --accent-soft: #dcedf2;
+  --ok: #2c7a4b;
+  --ok-soft: #e1f1e7;
+  --warn: #9a5800;
+  --warn-soft: #f6ead6;
+  --bad: #b1281f;
+  --bad-soft: #f8e1df;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1319; --panel: #151c25; --sunk: #111820; --ink: #e3e8ee; --muted: #93a0b0; --line: #2f3b49;
+    --accent: #52b6d2; --accent-soft: #11313b; --ok: #5cc28a; --ok-soft: #12291c; --warn: #e2a64a; --warn-soft: #2d2213;
+    --bad: #f07c72; --bad-soft: #321816; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1319; --panel: #151c25; --sunk: #111820; --ink: #e3e8ee; --muted: #93a0b0; --line: #2f3b49;
+  --accent: #52b6d2; --accent-soft: #11313b; --ok: #5cc28a; --ok-soft: #12291c; --warn: #e2a64a; --warn-soft: #2d2213;
+  --bad: #f07c72; --bad-soft: #321816; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; }
+.prose { max-width: 70ch; }
+header.top { display: grid; gap: 14px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+h1, h2, h3 { font-family: var(--display); font-stretch: 85%; text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 800; }
+h2 { font-size: clamp(24px, 3.2vw, 30px); font-weight: 750; }
+h3 { font-size: 19px; font-weight: 700; margin-top: 8px; }
+p { margin: 0; }
+.lead { font-size: 18px; color: var(--muted); max-width: 66ch; }
+section { display: grid; gap: 18px; padding-block: 44px 8px; }
+.secnum { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .05em; }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+code { background: var(--sunk); padding: 1px 5px; border-radius: 4px; }
+ul.tight { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; }
+nav.toc a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+nav.toc a:hover, nav.toc a:focus-visible { border-bottom-color: var(--accent); outline: none; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px; }
+.fact { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; display: grid; gap: 2px; min-width: 0; }
+.fact b { font-family: var(--display); font-stretch: 85%; font-size: 24px; font-variant-numeric: tabular-nums; }
+.fact span { font-size: 13px; color: var(--muted); }
+figure { margin: 0; display: grid; gap: 10px; }
+.scroll { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+figcaption { font-size: 14px; color: var(--muted); max-width: 80ch; }
+figcaption b { color: var(--ink); font-weight: 600; }
+.level { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--accent); background: var(--accent-soft); border-radius: 4px; padding: 1px 6px; margin-right: 6px; vertical-align: 2px; }
+svg.d { display: block; width: 100%; height: auto; color: var(--muted); }
+svg.w { min-width: 900px; }
+svg.m { min-width: 640px; }
+svg.n { min-width: 520px; }
+.d text { font-family: var(--sans); fill: var(--ink); font-size: 12px; }
+.d .t { font-weight: 600; font-size: 12.5px; }
+.d .s { fill: var(--muted); font-size: 10.5px; }
+.d .lb { font-family: var(--mono); fill: var(--muted); font-size: 10.5px; }
+.d .code { font-family: var(--mono); font-size: 10.5px; fill: var(--ink); }
+.d .k { font-size: 10px; letter-spacing: .07em; fill: var(--muted); font-weight: 600; }
+.d .acc { fill: var(--accent); }
+.d .wt { fill: var(--warn); }
+.d .box { fill: var(--panel); stroke: var(--line); stroke-width: 1.2; }
+.d .hot { stroke: var(--accent); stroke-width: 2; }
+.d .ext { fill: var(--sunk); stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.d .warnbox { fill: var(--panel); stroke: var(--warn); stroke-width: 1.6; }
+.d .bound { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 6 5; }
+.d .wbound { fill: none; stroke: var(--warn); stroke-width: 1.3; stroke-dasharray: 6 5; }
+.d .e { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+.d .eh { stroke: var(--accent); stroke-width: 1.7; fill: none; }
+.d .ed { stroke-dasharray: 5 4; }
+.d .life { stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.d .ah { fill: var(--muted); }
+.d .ahh { fill: var(--accent); }
+.d .pok { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.3; }
+.d .pwarn { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.3; }
+.d .pbad { fill: var(--bad-soft); stroke: var(--bad); stroke-width: 1.3; }
+.d .pmut { fill: var(--sunk); stroke: var(--line); stroke-width: 1.2; }
+.d .chip { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.1; }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; background: var(--sunk); }
+td.num { font-family: var(--mono); color: var(--muted); width: 2.5em; }
+.st { display: inline-block; font-family: var(--mono); font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid; white-space: nowrap; }
+.st.sat { color: var(--ok); background: var(--ok-soft); border-color: var(--ok); }
+.st.rem { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+.st.skip { color: var(--muted); background: var(--sunk); border-color: var(--line); }
+.st.np { color: var(--warn); background: var(--warn-soft); border-color: var(--warn); }
+.st.fail { color: var(--bad); background: var(--bad-soft); border-color: var(--bad); }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 4px; white-space: nowrap; }
+.tag.req { color: var(--bad); background: var(--bad-soft); }
+.tag.corr { color: var(--warn); background: var(--warn-soft); }
+.tag.choice { color: var(--accent); background: var(--accent-soft); }
+.callout { border-left: 3px solid var(--accent); background: var(--panel); padding: 14px 18px; border-radius: 0 8px 8px 0; display: grid; gap: 8px; max-width: 80ch; }
+.callout.warn { border-left-color: var(--warn); }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.two > * { min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; }
+.card h3 { margin: 0; font-size: 17px; }
+footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { nav.toc a { transition: border-color .15s; } }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">WPX-1042 · Class-F2 pump safety · Rule Engine</div>
+  <h1>Pump safety rules, back on the Engine's own contract</h1>
+  <p class="lead">The Architect reviewed the Series P7 pump safety rules and found they bypassed the Rule Engine's <b>Rule = Specification + Remedy</b> design. This page shows how the P7 check runs end to end, how the Engine works, what changed in each rule, and why each of the four Engine additions was needed.</p>
+  <div class="facts" aria-label="Verification results">
+    <div class="fact"><b>84/84</b><span>Chassis Rule Engine tests (10 new)</span></div>
+    <div class="fact"><b>28/28</b><span>PumpSafetyRules tests</span></div>
+    <div class="fact"><b>110/110</b><span>Business PumpSafety, same as before</span></div>
+    <div class="fact"><b>0</b><span>accepted baselines changed</span></div>
+  </div>
+  <nav class="toc" aria-label="Sections">
+    <a href="#system">1 · The system</a>
+    <a href="#inside">2 · Inside the P7 path</a>
+    <a href="#runtime">3 · One Calculate</a>
+    <a href="#rules">4 · The six rules</a>
+    <a href="#engine">5 · How the Engine runs a rule</a>
+    <a href="#change">6 · What changed in a rule</a>
+    <a href="#exception">7 · Why exceptions need a field</a>
+    <a href="#additions">8 · Engine additions</a>
+    <a href="#status">9 · Status and open points</a>
+  </nav>
+</header>
+
+<section id="system">
+  <div class="prose">
+    <div class="secnum">1 · The system</div>
+    <h2>Where the safety check lives</h2>
+    <p>When an engineer presses <b>Calculate</b>, WaterWorks runs a list of post-configuration validators. One of them works out the minimum reservoir volume each pump needs for a Class-F2 fluid (ISO&nbsp;24111). For Series P7 booster pumps, that validator now runs on the Rule Engine instead of the legacy calculator.</p>
+  </div>
+
+  <figure class="scroll">
+    <svg class="d n" viewBox="0 0 760 210" role="img" aria-label="C4 level 1 context diagram">
+      <defs><marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker></defs>
+      <circle cx="80" cy="66" r="15" class="box"/>
+      <path d="M55 112 q25 -30 50 0" class="e"/>
+      <text x="80" y="140" text-anchor="middle" class="lb">Engineer</text>
+      <rect x="290" y="34" width="200" height="104" rx="10" class="chip"/>
+      <text x="390" y="74" text-anchor="middle" class="t acc">WaterWorks</text>
+      <text x="390" y="96" text-anchor="middle" class="s">pump configuration</text>
+      <text x="390" y="112" text-anchor="middle" class="s">&amp; safety validation</text>
+      <rect x="600" y="44" width="130" height="84" rx="10" class="ext"/>
+      <text x="665" y="82" text-anchor="middle" class="t">Product</text>
+      <text x="665" y="102" text-anchor="middle" class="s">catalogue</text>
+      <path d="M110 78 L286 84" class="e" marker-end="url(#ah1)"/>
+      <text x="198" y="68" text-anchor="middle" class="s">presses Calculate</text>
+      <path d="M494 86 L596 86" class="e" marker-end="url(#ah1)"/>
+      <text x="545" y="76" text-anchor="middle" class="s">reads</text>
+    </svg>
+    <figcaption><b>C4 · L1 Context.</b> One person, one system, one data source. The safety check is internal to WaterWorks; nothing outside it changed.</figcaption>
+  </figure>
+
+  <figure class="scroll">
+    <svg class="d m" viewBox="0 0 820 290" role="img" aria-label="C4 level 2 container diagram">
+      <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker></defs>
+      <rect x="20" y="20" width="780" height="252" rx="12" class="bound"/>
+      <text x="36" y="42" class="s">WaterWorks process</text>
+      <rect x="50" y="66" width="180" height="88" rx="9" class="box"/>
+      <text x="140" y="104" text-anchor="middle" class="t">Business</text>
+      <text x="140" y="124" text-anchor="middle" class="s">net481</text>
+      <rect x="320" y="66" width="180" height="88" rx="9" class="chip hot"/>
+      <text x="410" y="100" text-anchor="middle" class="t acc">PumpSafetyRules</text>
+      <text x="410" y="120" text-anchor="middle" class="s">rules rewritten</text>
+      <text x="410" y="138" text-anchor="middle" class="s">netstandard2.0</text>
+      <rect x="590" y="66" width="180" height="88" rx="9" class="chip hot"/>
+      <text x="680" y="100" text-anchor="middle" class="t acc">Rule Engine</text>
+      <text x="680" y="120" text-anchor="middle" class="s">four additions</text>
+      <text x="680" y="138" text-anchor="middle" class="s">netstandard2.0</text>
+      <rect x="320" y="200" width="180" height="54" rx="9" class="ext"/>
+      <text x="410" y="224" text-anchor="middle" class="t">curve-lookup service</text>
+      <text x="410" y="242" text-anchor="middle" class="s">injected by Business</text>
+      <path d="M230 110 L316 110" class="e" marker-end="url(#ah2)"/>
+      <path d="M500 110 L586 110" class="e" marker-end="url(#ah2)"/>
+      <path d="M235 154 L325 196" class="e ed" marker-end="url(#ah2)"/>
+      <path d="M470 200 L470 158" class="e ed" marker-end="url(#ah2)"/>
+    </svg>
+    <figcaption><b>C4 · L2 Containers and libraries.</b> Highlighted borders mark what this change touched: the <code>PumpSafetyRules</code> library (rules rewritten) and the Engine (four additions). <code>PumpSafetyRules</code> targets netstandard2.0 and can't see the net481 cache, so Business hands it a curve-lookup service (the dashed arrow).</figcaption>
+  </figure>
+</section>
+
+<section id="inside">
+  <div class="prose">
+    <div class="secnum">2 · Inside the P7 path</div>
+    <h2>Every class on the path, by library</h2>
+    <p>Read left to right. Business decides whether a system goes to the Engine at all, translates the entity graph into an immutable snapshot, and writes results back. PumpSafetyRules holds the P7 domain: one flow, one profile and six rules. The Engine runs those rules.</p>
+  </div>
+
+  <figure class="scroll">
+    <svg class="d w" viewBox="0 0 980 352" role="img" aria-label="C4 level 3 component diagram">
+      <defs>
+        <marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker>
+        <marker id="ah3h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ahh"/></marker>
+      </defs>
+      <rect x="20" y="28" width="300" height="306" rx="10" class="bound"/><text x="36" y="50" class="s">Business</text>
+      <rect x="340" y="28" width="360" height="306" rx="10" class="bound"/><text x="356" y="50" class="s">PumpSafetyRules</text>
+      <rect x="720" y="28" width="240" height="306" rx="10" class="bound"/><text x="736" y="50" class="s">Rule Engine</text>
+      <rect x="40" y="76" width="260" height="44" rx="7" class="box"/><text x="170" y="103" text-anchor="middle" class="code">PumpComplianceValidator</text>
+      <rect x="40" y="146" width="260" height="44" rx="7" class="box"/><text x="170" y="173" text-anchor="middle" class="code">SystemSnapshot builder</text>
+      <rect x="40" y="246" width="260" height="44" rx="7" class="box"/><text x="170" y="273" text-anchor="middle" class="code">PumpResultWriter</text>
+      <rect x="360" y="76" width="150" height="44" rx="7" class="box"/><text x="435" y="103" text-anchor="middle" class="code">SeriesP7Flow</text>
+      <rect x="530" y="76" width="150" height="44" rx="7" class="box"/><text x="605" y="103" text-anchor="middle" class="code">PumpCurvesProfile</text>
+      <rect x="360" y="146" width="320" height="104" rx="8" class="chip hot"/>
+      <text x="520" y="178" text-anchor="middle" class="t acc">six rules</text>
+      <text x="520" y="200" text-anchor="middle" class="s">Spec + named Remedy</text>
+      <text x="520" y="220" text-anchor="middle" class="s">rewritten in this change (section 4)</text>
+      <rect x="360" y="276" width="320" height="42" rx="7" class="box"/><text x="520" y="302" text-anchor="middle" class="code">PumpValidationResult</text>
+      <rect x="740" y="76" width="200" height="44" rx="7" class="chip hot"/><text x="840" y="103" text-anchor="middle" class="code acc">Evaluator</text>
+      <rect x="740" y="146" width="200" height="44" rx="7" class="chip hot"/><text x="840" y="173" text-anchor="middle" class="code acc">Rule / BusinessRule</text>
+      <rect x="740" y="216" width="200" height="44" rx="7" class="chip hot"/><text x="840" y="243" text-anchor="middle" class="code acc">FactBag</text>
+      <path d="M300 98 L356 98" class="eh" marker-end="url(#ah3h)"/>
+      <path d="M435 120 L460 146" class="eh" marker-end="url(#ah3h)"/>
+      <path d="M680 198 L736 172" class="eh" marker-end="url(#ah3h)"/>
+      <path d="M170 120 L170 146" class="e" marker-end="url(#ah3)"/>
+      <path d="M520 250 L520 276" class="e" marker-end="url(#ah3)"/>
+      <path d="M360 300 L300 274" class="e" marker-end="url(#ah3)"/>
+    </svg>
+    <figcaption><b>C4 · L3 Components.</b> The accent path is the P7 call. Highlighted boxes are what changed: the six rules on the PumpSafetyRules side, and three Engine components that gained an addition. <code>SeriesP7Flow</code>, <code>PumpCurvesProfile</code> and the Business adapters did not change.</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>When does a system take the Engine path?</h3>
+    <p><code>PumpComplianceValidator</code> sends a system to the legacy calculator when the factory or additional charge is unknown, when the system has a manifold box, or when the series isn't a Series&nbsp;P7, Class-F2, booster-only series. Everything else goes through <code>SeriesP7Flow</code>. If the series is missing fluid-class data, the validator raises a critical notification before any rule runs.</p>
+  </div>
+</section>
+
+<section id="runtime">
+  <div class="prose">
+    <div class="secnum">3 · One Calculate, step by step</div>
+    <h2>What happens for one pump system</h2>
+  </div>
+
+  <figure class="scroll">
+    <svg class="d m" viewBox="0 0 900 410" role="img" aria-label="C4 level 4 runtime sequence diagram">
+      <defs>
+        <marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker>
+        <marker id="ah4a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ahh"/></marker>
+      </defs>
+      <text x="95" y="34" text-anchor="middle" class="t">Validator</text><line x1="95" y1="46" x2="95" y2="392" class="life"/>
+      <text x="300" y="34" text-anchor="middle" class="t">SeriesP7Flow</text><line x1="300" y1="46" x2="300" y2="392" class="life"/>
+      <text x="520" y="34" text-anchor="middle" class="t">Evaluator</text><line x1="520" y1="46" x2="520" y2="392" class="life"/>
+      <text x="720" y="34" text-anchor="middle" class="t">Rule</text><line x1="720" y1="46" x2="720" y2="392" class="life"/>
+      <path d="M95 68 L300 68" class="e" marker-end="url(#ah4)"/><text x="197" y="60" text-anchor="middle" class="s">Validate(snapshot)</text>
+      <path d="M300 98 L520 98" class="e" marker-end="url(#ah4)"/><text x="410" y="90" text-anchor="middle" class="s">Evaluate(rules, facts)</text>
+      <rect x="470" y="118" width="340" height="206" rx="8" class="bound" style="stroke:var(--accent)"/>
+      <text x="486" y="137" class="k acc">LOOP · EACH RULE — THE ONLY PART THIS CHANGE TOUCHED</text>
+      <path d="M520 162 L720 162" class="eh" marker-end="url(#ah4a)"/><text x="620" y="154" text-anchor="middle" class="s">Apply(subject, facts)</text>
+      <path d="M720 198 L520 198" class="e ed" marker-end="url(#ah4)"/><text x="620" y="190" text-anchor="middle" class="s">status + history</text>
+      <text x="486" y="234" class="s">writes facts; never changes the subject</text>
+      <text x="486" y="258" class="s">default policy: stop at first NotPossible or Failed</text>
+      <path d="M520 350 L300 350" class="e ed" marker-end="url(#ah4)"/><text x="410" y="342" text-anchor="middle" class="s">results</text>
+      <path d="M300 380 L95 380" class="e ed" marker-end="url(#ah4)"/><text x="197" y="372" text-anchor="middle" class="s">volumes + notifications</text>
+    </svg>
+    <figcaption><b>C4 · L4 Runtime sequence.</b> Solid arrows are calls, dashed arrows are return values. The loop is the only part this change touched: what a rule does inside <code>Apply</code>. The default policy stops the loop at the first <span class="st np">NotPossible</span> or <span class="st fail">Failed</span>.</figcaption>
+  </figure>
+</section>
+<section id="rules">
+  <div class="prose">
+    <div class="secnum">4 · The six rules</div>
+    <h2>Six rules, one shared fact bag</h2>
+    <p>Rules never call each other. They talk through <b>facts</b>: an earlier rule writes a fact, a later rule reads it. The order in <code>PumpCurvesProfile</code> is the legacy calculator's order, so the largest-per-zone report is taken before the lowest-level override, exactly as legacy does.</p>
+  </div>
+
+  <figure class="scroll">
+    <svg class="d m" viewBox="0 0 900 240" role="img" aria-label="Rule order and fact flow">
+      <defs><marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker></defs>
+      <rect x="20" y="40" width="860" height="70" rx="9" class="bound"/>
+      <text x="34" y="30" class="s">rule order (from PumpCurvesProfile) →</text>
+      <rect x="34" y="54" width="118" height="42" rx="6" class="box"/><text x="93" y="79" text-anchor="middle" class="code">1 ChargeKnown</text>
+      <rect x="162" y="54" width="128" height="42" rx="6" class="box"/><text x="226" y="79" text-anchor="middle" class="code">2 DirectVolumes</text>
+      <rect x="300" y="54" width="128" height="42" rx="6" class="box"/><text x="364" y="79" text-anchor="middle" class="code">3 LargestPerZone</text>
+      <rect x="438" y="54" width="128" height="42" rx="6" class="box"/><text x="502" y="79" text-anchor="middle" class="code">4 LowestLevel</text>
+      <rect x="576" y="54" width="138" height="42" rx="6" class="box"/><text x="645" y="79" text-anchor="middle" class="code">5 BoosterVolumes</text>
+      <rect x="724" y="54" width="142" height="42" rx="6" class="box"/><text x="795" y="79" text-anchor="middle" class="code">6 BoosterLimits</text>
+      <rect x="300" y="160" width="300" height="52" rx="9" class="chip"/>
+      <text x="450" y="183" text-anchor="middle" class="t acc">FactBag</text>
+      <text x="450" y="201" text-anchor="middle" class="s">fresh &amp; empty per system — nothing leaks</text>
+      <path d="M226 96 L410 158" class="e" marker-end="url(#ahr)"/><text x="300" y="132" text-anchor="middle" class="s">writes</text>
+      <path d="M520 158 L502 98" class="e" marker-end="url(#ahr)"/><text x="548" y="132" text-anchor="middle" class="s">reads</text>
+    </svg>
+    <figcaption><b>Order and facts.</b> A fresh Evaluator gets a fresh, empty FactBag, so nothing leaks between systems. After the run, <code>PumpValidationResult</code> reads the four facts and <code>PumpResultWriter</code> turns them into volumes and notifications on the entities.</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>Example run</h3>
+    <p>A booster pump with three pump units in two zones, one zone on the lowest underground reservoir level, and no booster modules:</p>
+  </div>
+
+  <div class="scroll">
+  <table class="tbl">
+    <thead><tr><th>#</th><th>Rule</th><th>Spec: already done?</th><th>Applies?</th><th>History</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td class="mono">FluidChargeMustBeKnown</td><td>charge known: yes</td><td>n/a</td><td><span class="st sat">Satisfied</span></td></tr>
+      <tr><td>2</td><td class="mono">CalculateDirectPumpReservoirVolumes</td><td>no</td><td>booster: yes</td><td><span class="st sat">Satisfied</span> "3 units" + volumes</td></tr>
+      <tr><td>3</td><td class="mono">ReportLargestVolumePerZone</td><td>no</td><td>yes</td><td><span class="st sat">Satisfied</span> "2 zones"</td></tr>
+      <tr><td>4</td><td class="mono">ApplyLowestReservoirLevelVolume</td><td>no</td><td>serves lowest level: yes</td><td><span class="st sat">Satisfied</span> "LowestLevelVolume=…"</td></tr>
+      <tr><td>5</td><td class="mono">CalculateBoosterModuleMinimumTotalVolumes</td><td>no</td><td>no modules</td><td><span class="st skip">Skipped</span> NotApplicable</td></tr>
+      <tr><td>6</td><td class="mono">BoosterModulesMustRespectCurveLimits</td><td>no (needs modules)</td><td>no modules</td><td><span class="st skip">Skipped</span> NotApplicable</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="prose">
+    <p>The calculations report <span class="st sat">Satisfied</span>, not <span class="st rem">Remediated</span>. In the Engine's model, Remediated means the subject itself was corrected. These rules only add facts; the <code>SystemSnapshot</code> never changes.</p>
+  </div>
+</section>
+
+<section id="engine">
+  <div class="prose">
+    <div class="secnum">5 · How the Engine runs a rule</div>
+    <h2>The Engine in two pictures</h2>
+  </div>
+
+  <figure class="scroll">
+    <svg class="d m" viewBox="0 0 900 250" role="img" aria-label="The Evaluator loop">
+      <defs><marker id="ahe" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker></defs>
+      <rect x="40" y="40" width="820" height="170" rx="10" class="bound"/>
+      <text x="56" y="30" class="s">Evaluator.Evaluate — for each rule</text>
+      <rect x="70" y="92" width="150" height="56" rx="8" class="box"/><text x="145" y="118" text-anchor="middle" class="t">try</text><text x="145" y="135" text-anchor="middle" class="s">rule.Apply(…)</text>
+      <path d="M220 120 L300 120" class="e" marker-end="url(#ahe)"/>
+      <rect x="300" y="92" width="170" height="56" rx="8" class="box"/><text x="385" y="118" text-anchor="middle" class="t">record status</text><text x="385" y="135" text-anchor="middle" class="s">+ history entry</text>
+      <path d="M470 120 L560 120" class="e" marker-end="url(#ahe)"/>
+      <rect x="560" y="72" width="250" height="96" rx="8" class="pbad"/>
+      <text x="685" y="100" text-anchor="middle" class="t">catch (Exception ex)</text>
+      <text x="685" y="122" text-anchor="middle" class="s">status = Failed</text>
+      <text x="685" y="140" text-anchor="middle" class="s acc">keeps ex itself (highlighted)</text>
+      <text x="685" y="158" text-anchor="middle" class="s">+ history entry</text>
+    </svg>
+    <figcaption><b>The Evaluator loop.</b> It already catches every exception a rule throws. Before this change it kept only the message; it now also keeps the exception itself (highlighted).</figcaption>
+  </figure>
+
+  <figure class="scroll">
+    <svg class="d n" viewBox="0 0 620 230" role="img" aria-label="One rule: spec then remedy">
+      <defs><marker id="aho" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker></defs>
+      <text x="40" y="30" class="s">BusinessRule.Apply(subject, facts)</text>
+      <rect x="40" y="46" width="160" height="52" rx="8" class="box"/><text x="120" y="72" text-anchor="middle" class="t">Specification</text><text x="120" y="89" text-anchor="middle" class="s">satisfied?</text>
+      <path d="M200 72 L300 72" class="e" marker-end="url(#aho)"/><text x="250" y="62" text-anchor="middle" class="s">yes</text>
+      <rect x="300" y="46" width="150" height="52" rx="8" class="pok"/><text x="375" y="78" text-anchor="middle" class="st sat">Satisfied</text>
+      <path d="M120 98 L120 150" class="e" marker-end="url(#aho)"/><text x="138" y="128" class="s">no</text>
+      <rect x="40" y="150" width="160" height="52" rx="8" class="box"/><text x="120" y="176" text-anchor="middle" class="t">Remedy</text><text x="120" y="193" text-anchor="middle" class="s">run it</text>
+      <path d="M200 176 L300 176" class="e" marker-end="url(#aho)"/>
+      <rect x="300" y="150" width="280" height="52" rx="8" class="box"/>
+      <text x="440" y="176" text-anchor="middle" class="s">Remediated / Skipped / NotPossible / Failed</text>
+      <text x="440" y="193" text-anchor="middle" class="code">SkipUnless wraps a remedy, like All(…)</text>
+    </svg>
+    <figcaption><b>One rule.</b> <code>BusinessRule.Apply</code> is unchanged: spec first, remedy only if the spec isn't satisfied. <code>SkipUnless</code> is a remedy that wraps another remedy, the same way <code>All(…)</code> wraps several.</figcaption>
+  </figure>
+
+  <div class="scroll">
+  <table class="tbl">
+    <thead><tr><th>Status</th><th>Meaning in the Engine</th><th>Used by the safety rules for</th></tr></thead>
+    <tbody>
+      <tr><td><span class="st sat">Satisfied</span></td><td>Fine; the subject didn't need correcting (facts may still be added)</td><td>every calculation, and the charge check when the charge is known</td></tr>
+      <tr><td><span class="st rem">Remediated</span></td><td>The remedy produced a corrected subject</td><td><i>not used: the snapshot is never corrected</i></td></tr>
+      <tr><td><span class="st skip">Skipped</span></td><td>The rule doesn't apply to this subject</td><td>non-booster, no lowest level, no booster modules</td></tr>
+      <tr><td><span class="st np">NotPossible</span></td><td>Can't evaluate; input missing</td><td>unknown charge, booster module without release pressure</td></tr>
+      <tr><td><span class="st fail">Failed</span></td><td>Requirement not met, or the rule threw</td><td>booster charge or total volume outside the curve limits</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="change">
+  <div class="prose">
+    <div class="secnum">6 · What changed in a rule</div>
+    <h2>From our own base class to the Engine's contract</h2>
+    <p>The Architect's comment was that the rule engine's design had been overridden: the calculation sat inside the rule instead of in a remedy. That was exactly right. <code>ApplicableRule</code> was a base class written next to the Engine that skipped Specification and Remedy entirely.</p>
+  </div>
+
+  <figure class="scroll">
+    <svg class="d m" viewBox="0 0 900 210" role="img" aria-label="Before and after rule shape">
+      <rect x="20" y="36" width="420" height="150" rx="10" class="pbad"/>
+      <text x="40" y="62" class="t">Before — ApplicableRule</text>
+      <text x="40" y="88" class="s">override point: IsApplicable(subject)</text>
+      <text x="40" y="110" class="s">the calculation ran inside the rule</text>
+      <text x="40" y="132" class="s">caught its own exceptions, prefixed the message</text>
+      <text x="40" y="160" class="code">Spec + Remedy skipped entirely</text>
+      <rect x="460" y="36" width="420" height="150" rx="10" class="pok"/>
+      <text x="480" y="62" class="t">After — BusinessRule</text>
+      <text x="480" y="88" class="s">Specification: FactIsKnown(volume)</text>
+      <text x="480" y="110" class="s">Remedy: SkipUnless(applies?, calc remedy)</text>
+      <text x="480" y="132" class="s">Evaluator catches exceptions (one place)</text>
+      <text x="480" y="160" class="code">the calculation moved, unchanged, into the remedy</text>
+    </svg>
+    <figcaption><b>Before and after.</b> The outcomes are the same (Skipped / Satisfied / Failed / NotPossible) and the Evaluator catches exceptions — but the rule now obeys the Engine's Spec + Remedy contract instead of its own base class.</figcaption>
+  </figure>
+
+  <div class="two">
+    <div class="prose">
+      <h3>A calculation rule now</h3>
+      <pre class="code">Specification
+  FactIsKnown(LowestLevelVolume)
+Remedy
+  SkipUnless(
+    IsBooster AND ServesLowestLevel…,
+    ApplyLowestReservoirLevelVolumeRemedy)</pre>
+      <p>The code the Architect quoted moved, unchanged, into <code>ApplyLowestReservoirLevelVolumeRemedy</code>.</p>
+    </div>
+    <div class="prose">
+      <h3>A check rule now</h3>
+      <pre class="code">Specification
+  HasBoosterModules AND ModulesWithinCurveLimits
+Remedy
+  SkipUnless(HasBoosterModules,
+    BoosterCurveLimitsRemedy) → Failed / NotPossible</pre>
+      <p>The spec includes <code>HasBoosterModules</code> on purpose; see the note below.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>The spec runs before the remedy. For a check, the spec means "everything within limits". For a system with no booster modules, "within limits" would be trivially true, so the rule would report <span class="st sat">Satisfied</span> before <code>SkipUnless</code> ever got the chance to say <span class="st skip">Skipped</span>. That's why a check's spec repeats its applicability.</p>
+  </div>
+</section>
+
+<section id="exception">
+  <div class="prose">
+    <div class="secnum">7 · Why exceptions need a field</div>
+    <h2>The reason already holds the message. Why isn't that enough?</h2>
+    <p>Because a crash and a real violation end up looking the same in the history: status <span class="st fail">Failed</span> plus some free text. Code can't reliably tell them apart from text. For safety the difference is the whole point: a violation means "we calculated it and it's not safe", a crash means "we don't know if it's safe".</p>
+  </div>
+
+  <figure class="scroll">
+    <svg class="d n" viewBox="0 0 640 220" role="img" aria-label="Two ways to fail">
+      <rect x="30" y="40" width="270" height="150" rx="10" class="pbad"/>
+      <text x="55" y="68" class="t">Real violation</text>
+      <text x="55" y="94" class="s">Status: Failed</text>
+      <text x="55" y="114" class="s">Info: "volume outside limits"</text>
+      <text x="55" y="140" class="s">Exception: <tspan style="font-weight:700">none</tspan></text>
+      <text x="55" y="168" class="code acc">→ we calculated it, it's unsafe</text>
+      <rect x="340" y="40" width="270" height="150" rx="10" class="pwarn"/>
+      <text x="365" y="68" class="t">Crash</text>
+      <text x="365" y="94" class="s">Status: Failed</text>
+      <text x="365" y="114" class="s">Info: "object reference…"</text>
+      <text x="365" y="140" class="s acc">Exception: <tspan style="font-weight:700">present</tspan></text>
+      <text x="365" y="168" class="code acc">→ we don't know if it's safe</text>
+    </svg>
+    <figcaption><b>Two ways to fail.</b> Status and Info look alike; only Exception separates them. <code>PumpValidationResult.Valid</code> is "no rule crashed", so getting this wrong turns a broken calculation into a normal-looking result.</figcaption>
+  </figure>
+
+  <div class="prose">
+    <p>Before this change, <code>ApplicableRule</code> caught exceptions itself and put <code>EvaluationException:</code> in front of the message, and <code>PumpStepRecord</code> looked for that prefix. Removing the base class without a replacement would have made every crash count as a violation, with <code>Valid</code> still <code>true</code>. The existing test <code>Validate_CurveLookupThrows_IsInvalidRatherThanAViolation</code> guards exactly this, and still passes.</p>
+  </div>
+
+  <div class="scroll">
+  <table class="tbl">
+    <thead><tr><th>Alternative</th><th>Why it doesn't work</th></tr></thead>
+    <tbody>
+      <tr><td>Recognise crashes by the reason text</td><td>The text is arbitrary. A message and a domain reason can't be told apart reliably.</td></tr>
+      <tr><td>A try/catch in every remedy that adds a prefix</td><td>Every remedy has to remember it, and it misses exceptions thrown by <i>specs</i>, which run before the remedy.</td></tr>
+      <tr><td>A safety-side "catching remedy" wrapper</td><td>Same gap: a remedy wrapper never sees an exception from the spec.</td></tr>
+      <tr><td>Keep <code>ApplicableRule</code>'s own catch</td><td>That's the base class the Architect flagged and we removed.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="additions">
+  <div class="prose">
+    <div class="secnum">8 · Engine additions</div>
+    <h2>Four additions, and whether each was needed</h2>
+    <p>All four are additive. <code>BusinessRule.Apply</code>, the statuses, how the overall status is computed, and the stop/continue policy are untouched, so other users of the Engine notice nothing. Two were needed; two are placement choices that could have lived in PumpSafetyRules.</p>
+  </div>
+
+  <div class="scroll">
+  <table class="tbl">
+    <thead><tr><th>Addition</th><th>Verdict</th><th>What it does</th><th>Why it's in the Engine</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="mono">HistoryEntry.Exception</td>
+        <td><span class="tag req">Required</span></td>
+        <td>The Evaluator's existing catch keeps the exception instead of only its message.</td>
+        <td>Only the Evaluator sees exceptions from specs, remedies and services alike. Nothing outside it can mark a crash reliably (section 7).</td>
+      </tr>
+      <tr>
+        <td class="mono">FactBag.Contains</td>
+        <td><span class="tag req">Required for correctness</span></td>
+        <td>Answers "was this fact written?", including a fact written as <code>null</code>.</td>
+        <td><code>TryGet</code> uses stored <code>is T</code>, and <code>null is double?</code> is false, so a stored null looked "missing". The store is private, so this can only be fixed inside the bag. Today's lowest-level volume is never null, so it works without this, but a spec called "fact is known" shouldn't lie for nullable facts.</td>
+      </tr>
+      <tr>
+        <td class="mono">FactIsKnownSpecification<br>Rule.FactIsKnown(…)</td>
+        <td><span class="tag corr">Placement choice</span></td>
+        <td>The "already calculated?" spec used by the five calculation rules.</td>
+        <td>It's generic (any subject, any fact), it builds on <code>Contains</code>, and the <code>this.FactIsKnown(…)</code> helper can only sit next to the <code>this.And(…)</code> / <code>this.Not(…)</code> inside <code>Rule</code>. In a fresh run it's always "not yet", so the remedy always runs; its value is that the spec says something true.</td>
+      </tr>
+      <tr>
+        <td class="mono">SkipUnlessRemedy<br>BusinessRule.SkipUnless(…)</td>
+        <td><span class="tag corr">Placement choice</span></td>
+        <td>Runs a remedy only when a spec holds; otherwise returns <span class="st skip">Skipped</span>.</td>
+        <td>It's a remedy combinator like <code>All(…)</code> and knows nothing about safety. <code>AllRemedy</code> already handles <span class="st skip">Skipped</span>, so it fits the model. The <code>this.SkipUnless(…)</code> helper can only sit next to <code>this.All(…)</code> inside <code>BusinessRule</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="status">
+  <div class="prose">
+    <div class="secnum">9 · Status and open points</div>
+    <h2>Where this stands</h2>
+
+    <h3>Done and verified</h3>
+    <ul class="tight">
+      <li>Engine commit <code>a1b2c3d4</code>: the four additions plus 10 tests.</li>
+      <li>PumpSafetyRules commit <code>e5f6a7b8</code>: six rules as spec + named remedy; <code>ApplicableRule</code> removed.</li>
+      <li>Chassis 84/84, PumpSafetyRules 28/28, Business PumpSafety 110/110. The last commit before the change gives the same 110 and 28.</li>
+      <li>No accepted baseline changed; no legacy calculator or routing changed.</li>
+    </ul>
+
+    <h3>For the Architect</h3>
+    <ul class="tight">
+      <li>Names: <code>SkipUnless</code>, <code>FactIsKnown</code>, <code>FactBag.Contains</code>, <code>HistoryEntry.Exception</code>. All additive, so renaming is cheap.</li>
+      <li>Agree that calculations stay <span class="st sat">Satisfied</span>, since the subject isn't corrected.</li>
+      <li>The observable stream is existing Engine work and isn't part of this change.</li>
+    </ul>
+
+    <h3>Trace detail that changed</h3>
+    <p>When a spec is satisfied, <code>BusinessRule</code> records <span class="st sat">Satisfied</span> without a reason. So two messages disappear from the history: <code>Charge=…</code> (rule 1) and <code>WithinLimits</code> (rule 6). No test or baseline checks them.</p>
+  </div>
+
+</section>
+
+<footer>
+  Feature bundle: <span class="mono">assets/00.features/wpx-1042-pump-safety-rule-engine</span> · plan in <span class="mono">phase-04-specification/phase.md</span>, "Rule Shape Addendum (Option B)" · branch <span class="mono">feature/wpx-1042-pump-safety-rules-engine</span>
+</footer>
+
+</div>
+</body>
+</html>

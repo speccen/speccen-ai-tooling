@@ -1,0 +1,8 @@
+# Default owners for everything in the repo
+*                      @speccen/team-leads
+
+# Workflows and release automation can change what runs with write access
+/.github/              @speccen/team-leads
+
+# Plugin manifests carry the published version and marketplace metadata
+/.claude-plugin/       @speccen/team-leads

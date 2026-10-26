@@ -1,0 +1,25 @@
+{
+  "name": "speccen",
+  "version": "26.1026.6",
+  "description": "A structured, autonomous or phase-gated workflow for software development and refactoring, governed by a Software Architect and supported by AI. Enforces deep analysis before implementation through progressive implementation phases.",
+  "author": {
+    "name": "Speccen"
+  },
+  "homepage": "https://github.com/speccen/speccen-ai-toolkit",
+  "repository": "https://github.com/speccen/speccen-ai-toolkit",
+  "license": "MIT",
+  "keywords": [
+    "spec-driven development",
+    "workflow",
+    "analysis",
+    "refactoring",
+    "architecture",
+    "software-development",
+    "autonomous",
+    "gated",
+    "adr"
+  ],
+  "skills": [
+    "./skills/"
+  ]
+}
