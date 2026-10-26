@@ -101,6 +101,7 @@ compact `summary.md`, and a resuming reader loads only `STATE.md` plus the curre
 ├── index.md                regenerable listing
 ├── delegated-decisions.md  autonomous mode only: the delegate's decision record
 ├── speccen-config.yaml     bundle configuration — workflow mode (+ optional local override, uncommitted)
+├── files/                  supporting files for this request (an empty .gitkeep keeps it in git)
 ├── phase-01-…/ … phase-08-…/   phase.md + summary.md (+ phase-specific docs)
 └── adrs/                   one file per Architecture Decision Record (feature-local, Tier-1)
 ```

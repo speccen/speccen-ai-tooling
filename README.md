@@ -279,6 +279,8 @@ files rather than one growing document. Its shape:
 ├── speccen-config.yaml                   # bundle configuration: workflow mode, with optional per-phase overrides — committed
 ├── speccen-config.local.yaml             # optional personal override — never committed (the bundle's .gitignore ignores it)
 ├── .gitignore                            # one line: speccen-config.local.yaml
+├── files/                                # supporting files for this request — always committed
+│   └── .gitkeep                          # empty — keeps the folder in git
 ├── phase-01-feature-analysis/
 │   ├── phase.md                          # full analysis content for the phase
 │   └── summary.md                        # compact "what happened / outcome / open items", sorts last

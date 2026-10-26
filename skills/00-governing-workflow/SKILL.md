@@ -83,6 +83,8 @@ A workflow's output (one bundle) lives entirely inside `{{FOLDER_NAME}}` =
 ├── speccen-config.yaml                   # bundle configuration (YAML, no frontmatter) — shared, committed, Architect-edited
 ├── speccen-config.local.yaml             # OPTIONAL personal override — never committed; created only at the Architect's request
 ├── .gitignore                            # one line: speccen-config.local.yaml
+├── files/                                # supporting files for this request — always committed
+│   └── .gitkeep                          # empty — keeps the folder in git while it holds nothing else
 ├── phase-01-feature-analysis/
 │   ├── phase.md                          # type: Phase — full analysis content
 │   └── summary.md                        # type: Summary — work done + outcome, compact, sorts last
@@ -489,6 +491,8 @@ To **resume**, the Architect names the existing bundle id (or speccen lists the 
      `.gitignore` (the single line `speccen-config.local.yaml`) — never the local config file
    - `phase-01-feature-analysis/` with `phase.md` and `summary.md` stubs
    - `adrs/` (empty)
+   - `files/` with an empty `.gitkeep`, so the folder is committed and pushed even while it
+     holds nothing else
 4. Set `STATE.md` to register `FEATURE ANALYSIS PHASE` / `IN PROGRESS`.
 5. Read the **Feature Analysis skill**:
    `skills/01-feature-analysis/SKILL.md`
@@ -1220,8 +1224,8 @@ type: Log
 
 `index.md` is **regenerable** — it holds links and descriptions only, no live state.
 It is rebuilt from the frontmatter (`type`, `phase`, `status`, `description`, `audience`)
-of every bundle file whenever the bundle changes (the config files, which have none, are
-handled under Bundle Control below). Never hand-maintain live state here; that
+of every bundle file whenever the bundle changes (the config files and the files under
+`files/`, which have none, are handled below). Never hand-maintain live state here; that
 belongs in `STATE.md`.
 
 ### Grouping and ordering rules
@@ -1238,12 +1242,14 @@ Use exactly these sections, in this order:
    `speccen-config.yaml` where they exist (in that order). `delegated-decisions.md` has
    frontmatter and is listed like any file. The config files have none: list
    `speccen-config.yaml` by name as type `Config` with the description "Bundle configuration —
-   workflow mode". Never list `speccen-config.local.yaml` (personal, uncommitted) or `.gitignore`.
+   workflow mode". Never list `speccen-config.local.yaml` (personal, uncommitted), `.gitignore` or any `.gitkeep`.
 3. **Phases** — one sub-table per phase, in **numeric phase order** (01 → 08). Within a
    phase, list its files in this fixed order: `phase.md`, `summary.md`, then any other
    file — `doc-*.md` (standard seeds order `executive`, `business`, `technical`; an optional
    `doc-evolution-gap.md` in Phase 02 after `summary.md`), `prototype-<N>.md` (Phase 03, in number
    order), `retrospective.md` (Phase 07), or `reference.md` (Phase 08). Phases 07 and 08 appear only if those optional passes were run.
+4. **Files** — every file under `files/` except `.gitkeep`, by name and linked, in name order.
+   They have no frontmatter. Omit the section while `files/` holds only `.gitkeep`.
 
 Omit a section entirely if it has no files yet (e.g. no ADR section before the first
 ADR exists). Never emit placeholder or `...` rows — list only files that actually exist.
@@ -1771,7 +1777,8 @@ These rules apply across all phases and all skills:
 1. Before Phase 05, the AI writes only to: the current phase's `phase.md` and
    `summary.md` (and, in Phase 03, its `prototype-<N>.md` records), `STATE.md`, `log.md`, and `adrs/` (new ADR files, or compliance
    responses appended to existing ones), plus — once, at bundle creation —
-   `speccen-config.yaml` and the bundle's `.gitignore` (and that `.gitignore` line again, if it is
+   `speccen-config.yaml`, the bundle's `.gitignore` and the empty `files/.gitkeep` (and that
+   `.gitignore` line again, if it is
    missing when the Architect asks for the local config file); and, in `autonomous` mode only,
    `delegated-decisions.md`. `index.md` may be regenerated at any time.
    Phase 05 is the only phase that modifies the codebase; Phases 01–04 and the optional
