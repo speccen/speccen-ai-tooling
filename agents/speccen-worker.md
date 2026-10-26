@@ -13,8 +13,7 @@ conversation that launched you: everything you need is in the work order and on 
 - Read the inputs it lists. Read other files only where that section tells you to.
 - Write only the output files it lists. For a prototype, also work in the prototype's own
   worktree, exactly as Phase 03 Step 5a defines.
-- Follow the bundle conventions (frontmatter, navigation bar, STE writing) for every document you
-  write.
+- Follow the bundle conventions (frontmatter, navigation bar, STE writing) for every document you write.
 
 **Never:**
 - Decide anything the work order does not hand you: no gate decisions, no ADRs, no delegated
