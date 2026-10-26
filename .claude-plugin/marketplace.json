@@ -9,14 +9,14 @@
   },
   "metadata": {
     "description": "Speccen — a structured, autonomous or phase-gated process for software development and refactoring governed by a Software Architect.",
-    "version": "26.1026.6"
+    "version": "26.1026.7"
   },
   "plugins": [
     {
       "name": "speccen",
       "source": "./",
       "description": "Structured autonomous or phase-gated workflow for software development and refactoring. Enforces deep analysis before implementation through six progressive phases, governed by a Software Architect.",
-      "version": "26.1026.6",
+      "version": "26.1026.7",
       "author": {
         "name": "Speccen"
       },
