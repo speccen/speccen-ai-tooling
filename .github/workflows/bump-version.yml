@@ -9,6 +9,12 @@ on:
       - 'README.md'
       - 'ARCHITECTURE.md'
       - 'LICENSE'
+  workflow_dispatch:
+
+# Serialise runs so two quick merges cannot race on the push or the tag
+concurrency:
+  group: bump-version
+  cancel-in-progress: false
 
 jobs:
   bump-version:
@@ -27,6 +33,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
 
@@ -84,5 +91,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
           git commit -m "[chore] bump version to $NEW_VERSION [skip ci]"
+          git push origin main
           git tag "v$NEW_VERSION"
-          git push origin main --tags
+          git push origin "v$NEW_VERSION"
