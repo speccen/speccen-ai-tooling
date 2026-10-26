@@ -1,12 +1,13 @@
 # speccen
 
 **speccen** [ˈspɛkŋ] · West Flemish · noun
-*A sweet spot for AI engineering.*
 
 *Spekken* means candy in West Flemish. We make specification-driven software development a
 little sweeter.
 
 **Specification-driven. Lean by design. Autonomous by choice.**
+
+*A sweet spot for AI engineering.*
 
 speccen takes a request — a feature, refactoring, fix or idea — through six core phases — from deep analysis, to an
 agreed specification, to implementation and close-out — with two optional post-completion
