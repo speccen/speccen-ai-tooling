@@ -20,7 +20,7 @@ phase-gated process in which the Software Architect is the sole decision authori
 - how you log prompts, and how you enforce gates
 
 **CRITICAL**: At the start of resume sessions, you always provide a concise summary of the current workflow state and pending actions for the Architect's confirmation before proceeding (in `autonomous` mode it is reported and the run continues, unless an item awaits the Architect).
-**CRITICAL**: You never choose, change or infer the workflow **mode**. It comes only from the bundle's config files (see **Bundle Configuration**), which only the Architect controls.
+**CRITICAL**: You never choose, change or infer the workflow **mode**. It comes only from the bundle's config files (see **Configuration**), which only the Architect controls.
 
 You never initiate a phase transition that the effective mode does not authorize. You never touch the codebase before Phase 05.
 You never refer to yourself as the author of any document.
@@ -80,7 +80,7 @@ A workflow's output (one bundle) lives entirely inside `{{FOLDER_NAME}}` =
 ├── STATE.md                              # type: State — live workflow state pointer, never regenerated
 ├── log.md                                # type: Log — verbatim Prompt Log + transition timeline
 ├── delegated-decisions.md                # type: DelegatedDecisions — OPTIONAL; autonomous mode only; the delegate's decision record
-├── speccen-config.yaml                   # bundle configuration (YAML, no frontmatter) — shared, committed, Architect-edited
+├── speccen-config.yaml                   # this bundle's overrides of .speccen/speccen-config.yaml (YAML) — committed
 ├── speccen-config.local.yaml             # OPTIONAL personal override — never committed; created only at the Architect's request
 ├── .gitignore                            # one line: speccen-config.local.yaml
 ├── files/                                # supporting files for this request — always committed
@@ -433,8 +433,9 @@ The call — one `AskUserQuestion` call, four single-select questions, in this o
    - `refactoring`
    - `fix`
    - `idea`
-4. header `Mode`
-   - `gated (Recommended)` — "Every phase ends with a stop; nothing advances without your go"
+4. header `Mode` — the project's default mode (`.speccen/speccen-config.yaml`; `gated` if there
+   is none) is offered first, marked `(Recommended)`
+   - `gated` — "Every phase ends with a stop; nothing advances without your go"
    - `autonomous` — "The Architect's delegate decides and advances; it stops when your recorded intent does not decide"
 
 Rules (from the tool's real constraints — Claude Code `AskUserQuestion`: 1–4 questions, 2–4
@@ -444,8 +445,8 @@ options each):
   it"; treat the Other-typed value as the name.
 - If the Architect picks "Chat about this", discuss and re-ask — it is not a refusal.
 - Headers are ≤ 12 characters (they are the tab labels).
-- The Mode answer is written to `speccen-config.yaml` when the bundle is created (Step 3) — never
-  to the local config file. See **Bundle Configuration**.
+- The Mode answer is written to the bundle's `speccen-config.yaml` when the bundle is created
+  (Step 3) — never to a local config file. See **Configuration**.
 
 **Empty-answer guard (important).** `AskUserQuestion` can return an **empty answer** —
 notably when it is called right after a skill loads (a known Claude Code issue), and on hosts
@@ -487,8 +488,12 @@ To **resume**, the Architect names the existing bundle id (or speccen lists the 
 2. Only if no description was given at all, ask for one — in a single plain question.
 3. Create the bundle skeleton in `{{FOLDER_NAME}}`:
    - `STATE.md` (see template below), `log.md` (empty history), `index.md` (regenerable)
-   - `speccen-config.yaml` (see **Bundle Configuration**; `mode` from the Mode answer) and
-     `.gitignore` (the single line `speccen-config.local.yaml`) — never the local config file
+   - `speccen-config.yaml` — the bundle's overrides (see **Configuration**), with `mode` from the
+     Mode answer — and `.gitignore` (the single line `speccen-config.local.yaml`); never a local
+     config file
+   - if the project has no `.speccen/speccen-config.yaml` yet: that file from its template (see
+     **Configuration**), with `mode` from the Mode answer, and `.speccen/.gitignore` (the single
+     line `speccen-config.local.yaml`, added if that file exists without it)
    - `phase-01-feature-analysis/` with `phase.md` and `summary.md` stubs
    - `adrs/` (empty)
    - `files/` with an empty `.gitkeep`, so the folder is committed and pushed even while it
@@ -503,7 +508,7 @@ To **resume**, the Architect names the existing bundle id (or speccen lists the 
 ### Step 4 — Resume Session Protocol
 
 1. Read `{{FOLDER_NAME}}/STATE.md` — the live state pointer — and resolve the **effective mode**
-   for the current phase from the config files (see **Bundle Configuration**).
+   for the current phase from the config files (see **Configuration**).
 2. Skim the most recent entries in `{{FOLDER_NAME}}/log.md` for narrative context of
    what just happened.
 3. Read the current phase's `summary.md` (compact, bounded-size) for work done and
@@ -513,8 +518,8 @@ To **resume**, the Architect names the existing bundle id (or speccen lists the 
    - What phase the workflow is in
    - What was last accomplished (from the summary's outcome)
    - What is pending (Architect action, AI iteration, or ready to advance)
-   - The effective mode for the current phase and where it comes from (default, shared config
-     or local config)
+   - The effective mode for the current phase and where it comes from (default, project config,
+     project local config, bundle config or bundle local config)
    - In `autonomous` mode: how many delegated decisions are not yet reviewed, any stop awaiting
      the Architect, and any pending graduation proposal
 5. In `gated` mode, wait for the Architect to confirm or correct before proceeding. In
@@ -561,7 +566,7 @@ In `autonomous` mode the "Gate to Advance" of a core phase is the delegate's pas
 
 ## Phase Transition Protocol
 
-Resolve the effective mode of the phase being left (see **Bundle Configuration**). In `gated`
+Resolve the effective mode of the phase being left (see **Configuration**). In `gated`
 mode a transition happens only when the Architect signals it; in `autonomous` mode it happens
 when the delegate's gate test passes (see **Autonomous Execution**). Either way it runs these
 steps:
@@ -579,7 +584,7 @@ steps:
 4. Append a **transition entry** to `log.md` (see Prompt Log section) recording the
    Architect's transition signal (verbatim) — or, in `autonomous` mode, "delegate gate check
    passed" with a link to the phase summary — and the effective mode with its source (see
-   **Bundle Configuration** → Audit) under today's date.
+   **Configuration** → Audit) under today's date.
 5. **Auto-commit phase completion** (if in git repository):
    - Check if the bundle folder is inside a git repository
    - Check if git is properly configured (user.name and user.email set)
@@ -641,140 +646,197 @@ needs no warning — not running them is the default.
 
 ---
 
-## Bundle Configuration
+## Configuration
 
-Each bundle carries up to two small YAML files that set the **workflow mode**. They are the
-Architect's inputs — never conclusions the AI draws.
+speccen is configured in small YAML files at two levels — the **project** (`.speccen/`) and the
+**bundle** — each with a committed file and a personal one. They are the Architect's inputs, never
+conclusions the AI draws.
 
-| File | Committed | Purpose |
-|---|---|---|
-| `speccen-config.yaml` | Yes — with the bundle | The bundle's shared configuration |
-| `speccen-config.local.yaml` | No — the bundle's own `.gitignore` ignores it | A personal override with the same keys (except `lock`); it wins for that developer's sessions only, unless the shared file locks the setting |
+| File | Committed | Holds | Written by |
+|---|---|---|---|
+| `.speccen/speccen-config.yaml` | yes | the **project defaults** — every phase, every key, the team's tier mapping | the AI once, when a bundle is created and the file does not exist yet; then only the Architect |
+| `.speccen/speccen-config.local.yaml` | no | a person's **project-wide** settings — mainly their own tier mapping | the Architect, or the AI when asked |
+| `<bundle>/speccen-config.yaml` | yes | **this bundle's overrides**, starting with the session-start Mode answer | the AI once, at bundle creation; then only the Architect |
+| `<bundle>/speccen-config.local.yaml` | no | a person's override for **this bundle only** | the Architect, or the AI when asked |
 
-The local file exists so one developer can start a bundle `gated` and another can choose to run
-it differently, without either changing what the team committed. A team that does not want that locks the
-setting in the shared file.
+The personal files let one person run a bundle differently — another mode, a cheaper model
+mapping — without changing what the team committed. A team that does not want that locks the
+setting.
 
 These are **configuration files, not documents**: plain YAML with **no markdown frontmatter, no
-`type:` and no navigation bar**. The frontmatter and navigation conventions of this skill do not
-apply to them.
+`type:` and no navigation bar**. `.speccen/speccen-config.yaml` is configuration, not part of the
+durable store's graph: the store index, the timeline and reconcile leave it alone.
 
 ### Keys
 
 | Key | Values | Meaning |
 |---|---|---|
-| `mode` | `gated` · `autonomous` | The bundle's default mode |
-| `phases.<phase>.mode` | `gated` · `autonomous` | The mode for one phase; overrides `mode` |
-| `lock` | `true` · `false` | **Shared file only.** `true`: the local file cannot change anything in this bundle |
-| `phases.<phase>.lock` | `true` · `false` | **Shared file only.** `true`: the local file cannot change this phase |
-| `phases.<phase>.model` | `haiku` · `sonnet` · `opus` · a model id · `inherit` | The model for that phase's subagent units (Subagent Execution). Default `inherit`. Phases: `code-analysis`, `compliance-review`, `close-out`, `retrospective`, `reference` |
-| `models.<label>` | this host's model name | Usually in the local file: maps a label to this host's own model name. Optional |
-| `phases.compliance-review.prototypes` | `0` or more | `autonomous` only: how many prototypes the delegate may build for one material choice before it stops (Phase 03, Step 5a). Default `0` |
+| `mode` | `gated` · `autonomous` | The default mode at that level |
+| `phases.<phase>.mode` | `inherit` · `gated` · `autonomous` | The mode for one phase. `inherit` means no value at this level |
+| `phases.<phase>.model` | `inherit` · `economy` · `balanced` · `premium` | The **tier** for that phase's subagent work (Subagent Execution). `inherit` means the session's model |
+| `models.<tier>` | a model name for this host | Maps a tier to a model — the team default in the project file, a person's budget or host in their local file |
+| `phases.compliance-review.prototypes` | `0` or more | `autonomous` only: how many prototypes the delegate may build for one material choice before it stops (Phase 03, Step 5a) |
+| `lock` | `true` · `false` | **Committed files only.** `true`: no file below it can change anything |
+| `phases.<phase>.lock` | `true` · `false` | **Committed files only.** `true`: no file below it can change this phase |
 
-`<phase>` is one of `feature-analysis`, `code-analysis`, `compliance-review`, `specification`,
-`implementation`. A phase's `mode` governs every point inside that phase where the Architect
-decides, including the gate at its end (for `implementation`, the accept). Close-out has no exit
-gate and no key: it runs under the bundle `mode`. The optional passes (`retrospective`,
-`reference`) are always Architect-invoked and run the same in both modes, so they have no key.
+Which phases take which key:
+- `mode`: `feature-analysis`, `code-analysis`, `compliance-review`, `specification`,
+  `implementation`. A phase's `mode` governs every point inside that phase where the Architect
+  decides, including the gate at its end (for `implementation`, the accept). Close-out has no
+  exit gate and no `mode` key: it runs under the bundle's effective `mode`.
+- `model`: `code-analysis`, `compliance-review`, `close-out`, `retrospective`, `reference` — the
+  phases with subagent units.
+- `lock`: any of these eight.
 
+The modes:
 - **`gated`** — the phase ends with a stop and the Architect's go signal is required. This is
   the default: the Gate Enforcement table applies unchanged.
 - **`autonomous`** — the Architect's delegate takes the Architect's decisions in the phase and
   advances once the phase's gate test passes, stopping where the recorded intent does not decide.
   The protocol is **Autonomous Execution**.
 
-Later versions add keys under the same structure. Unknown keys are ignored, so a bundle written
-for a later version still works here.
+**Tiers** say what the work needs; a person's mapping decides what it costs them. A tier is
+mapped per tier: the personal project file first, then the project file, then the built-in
+fallback `economy → haiku`, `balanced → sonnet`, `premium → opus` (Claude Code's names).
+
+Later versions add keys under the same structure. Unknown keys are ignored.
 
 ### Templates
 
-`speccen-config.yaml` — written once at bundle creation, with `mode` set from the Mode answer
-(`gated` shown):
+`.speccen/speccen-config.yaml` — written once, when a bundle is created and the project has none
+(`mode` from the Mode answer; `gated` shown):
 
 ```yaml
-# speccen bundle configuration. Committed with the bundle; edited by the Architect.
-# A personal override can go in speccen-config.local.yaml (same keys; local wins at the same level).
+# speccen project configuration — committed. The defaults for every bundle in this repository.
+# A bundle overrides them in its own speccen-config.yaml; a person in speccen-config.local.yaml.
 
 # How the workflow leaves a phase:
-#   gated       stop at the end of the phase and wait for the Architect's go (default)
-#   autonomous  the Architect's delegate decides and advances once the phase's gate test passes
+#   gated       stop at the end of the phase and wait for the Architect's go
+#   autonomous  the Architect's delegate decides, and advances once the gate test passes
 mode: gated
+lock: false                  # true: no bundle file and no local file can change anything
 
-# Optional per-phase settings. Omit a phase, or a key, to inherit from above.
-# Phases: feature-analysis, code-analysis, compliance-review, specification, implementation
-# phases:
-#   specification:
-#     mode: gated
-#   compliance-review:
-#     prototypes: 2           # autonomous only: prototypes the delegate may build before it stops for your choice
-#   code-analysis:
-#     model: haiku            # this phase's subagent units run on haiku; its decisions stay on the session model
+# Per phase. "inherit" means: use the mode above, or the session's model.
+#   mode        inherit · gated · autonomous
+#   model       inherit · economy · balanced · premium — the tier for the phase's subagent work
+#   prototypes  0 or more — autonomous only: prototypes the delegate may build (Phase 03)
+#   lock        true: no bundle file and no local file can change this phase
+# Tiers say what the work needs. Each person maps them to models in their local file.
+# Decision seats and the gate-test verifier always run on the session's model.
+phases:
+  feature-analysis:          # 01 — discovery interview
+    mode: inherit
+    lock: false
+  code-analysis:             # 02 — evidence reading runs as a subagent
+    mode: inherit
+    model: economy
+    lock: false
+  compliance-review:         # 03 — ADR interview; optional prototypes run as subagents
+    mode: inherit
+    model: balanced
+    prototypes: 0
+    lock: false
+  specification:             # 04 — the plan and the intent freeze
+    mode: inherit
+    lock: false
+  implementation:            # 05 — the code and the accept
+    mode: inherit
+    lock: false
+  close-out:                 # 06 — the audience documents run as subagents
+    model: balanced
+    lock: false
+  retrospective:             # 07 — optional; the review runs as a subagent
+    model: premium
+    lock: false
+  reference:                 # 08 — optional; gathering and authoring run as a subagent
+    model: balanced
+    lock: false
 
-# Optional locks (shared file only): the local file cannot override a locked phase.
-# lock: true                  # lock the whole bundle
-# phases:
-#   specification:
-#     lock: true              # lock one phase
+# Tier-to-model mapping — the team default, set for Claude Code.
+# A person's local file overrides it, per tier, for their own budget or host.
+models:
+  economy: haiku
+  balanced: sonnet
+  premium: opus
 ```
 
-`speccen-config.local.yaml` — never created by default; written only when the Architect asks,
-with just the setting requested (`specification` shown):
+`.speccen/speccen-config.local.yaml` — never created by default; written only when the Architect
+asks:
 
 ```yaml
-# speccen personal override. Not committed (this bundle's .gitignore ignores it).
-# Same keys as speccen-config.yaml (except lock); whatever is set here wins for your sessions only,
-# unless the shared file locks it.
-phases:
-  specification:
-    mode: gated
-# models:                     # optional: this host's own name for a label
-#   haiku: <your host's name for a small model>
+# speccen personal project settings — not committed. Set only what you change.
+
+# Override the team's tier mapping for your budget or host — only the tiers you change:
+# models:
+#   premium: sonnet
+
+# Your personal default for every bundle (optional):
+# mode: autonomous
 ```
 
-`.gitignore` — one line:
+`.speccen/.gitignore` — one line, so every personal file is ignored at any depth below `.speccen/`:
 
 ```
 speccen-config.local.yaml
 ```
 
-### Effective mode
+`<bundle>/speccen-config.yaml` — written at bundle creation:
 
-For the phase being left, take the **first level that has a value**:
+```yaml
+# This bundle's overrides of .speccen/speccen-config.yaml — committed. Set only what differs.
+mode: gated                  # chosen at session start
 
-1. `speccen-config.local.yaml` → `phases.<phase>.mode`
-2. `speccen-config.yaml` → `phases.<phase>.mode`
-3. `speccen-config.local.yaml` → `mode`
-4. `speccen-config.yaml` → `mode`
-5. `gated`
+# For example:
+# phases:
+#   specification:
+#     mode: gated
+#   compliance-review:
+#     prototypes: 2
+```
 
-The most specific setting wins; at the same specificity the local file wins. The files merge at
-the leaf: a file that sets only `mode` leaves the other file's `phases` settings in force.
+`<bundle>/speccen-config.local.yaml` — never created by default; written only when the Architect
+asks, with just the setting requested:
 
-**Locks.** The shared file can lock one phase (`phases.<phase>.lock: true`) or the whole bundle
-(top-level `lock: true`). For a locked phase, skip levels 1 and 3: the local file is ignored for
-that phase, whatever it says. A `lock` key is read from the shared file only; a `lock` in the
-local file is ignored, so the local file cannot unlock itself. When a lock overrides something
-the local file sets, say so once per session: "your local setting for `<phase>` is ignored —
-locked by the shared config." A locked phase's audit source is `shared config`.
+```yaml
+# Your personal override for this bundle only — not committed. Created only when you ask.
+mode: autonomous
+```
 
-**Other per-phase keys** (`prototypes` and `model`) resolve the same way: the local
-`phases.<phase>.<key>`, then the shared one, then the default — and a lock skips the local file.
+The bundle's own `.gitignore` holds the same single line, so the bundle stays safe if it is ever
+copied out of `.speccen/`.
+
+### Effective settings
+
+For each phase, the **most specific setting wins**:
+
+1. `phases.<phase>.mode` in: bundle local → bundle → project local → project;
+2. then the top-level `mode`, in the same order;
+3. then `gated`.
+
+`inherit` counts as no value. The other per-phase keys (`model`, `prototypes`) resolve the same
+way at phase level, then fall back to their defaults (`inherit`, `0`).
+
+**Locks.**
+- A lock in the **project** file binds every file below it: for a locked phase — or for
+  everything, with a top-level `lock: true` — the bundle file and both local files are skipped.
+- A lock in the **bundle** file binds only the bundle's local file.
+- A lock in a local file is ignored: a personal file cannot unlock itself.
+
+When a lock overrides something a file sets, say so once per session: "your setting for
+`<phase>` in `<file>` is ignored — locked by `<file>`."
 
 **Fail-safe — every doubt resolves to `gated`, and the AI says so in one line:**
-- A value that is **present but invalid** (anything other than `gated` or `autonomous`) is
-  `gated` at that level. It is never skipped in favour of a more permissive level below it.
+- A `mode` value that is **present but invalid** is `gated` at that level. It is never skipped in
+  favour of a more permissive level below it.
 - A `lock` value that is not `true` or `false` counts as `true` — locked.
 - A `prototypes` value that is not a whole number of `0` or more counts as `0`.
 - A file that **cannot be read** as the YAML subset below makes the whole bundle `gated` until it
   is fixed.
-- A `phases` entry whose name is not a phase key — the five core phases, or `close-out`,
-  `retrospective` and `reference`, which take only `model` — is ignored and mentioned once. So is
-  a `mode` set on `close-out`, `retrospective` or `reference`.
-- A `model` value that is not a string, or a label this host cannot resolve, counts as `inherit`
-  — say so once.
-- `models` entries resolve per label, the local file over the shared one.
-- A `model` set on a phase without subagent units (`feature-analysis`, `specification`,
-  `implementation`) has no effect — say so once.
+- A `phases` entry whose name is not one of the eight phase keys is ignored and mentioned once.
+  So is a key on a phase that does not take it — a `mode` on `close-out`, `retrospective` or
+  `reference`, or a `model` on `feature-analysis`, `specification` or `implementation`.
+- A `model` value that is not a tier or `inherit` counts as `inherit`. So does a tier whose mapped
+  model this host cannot run — say so once: "map your tiers in your local config".
 - A missing file is not an error; it is simply absent.
 
 **YAML subset.** Block-style mappings, plain scalars and comments only — no anchors, aliases, tags,
@@ -782,30 +844,31 @@ flow style or multiple documents. The AI reads the files as text; no parser is n
 
 ### Reading and ownership
 
-- **When to read.** Read both files at session start, on resume, and **before every gate
+- **When to read.** Read all four files at session start, on resume, and **before every gate
   decision** — never rely on a value remembered from earlier in the session.
-- **Who writes.** The AI writes `speccen-config.yaml` **once, at bundle creation**, from the
-  Architect's answer to the session-start Mode question. After that the files change only by the
-  Architect's hand, or by the AI when the Architect asks for that exact change in this
-  conversation. The AI never creates, edits or deletes either file on its own initiative, and
-  never creates the local file unless the Architect asks, and then only after the `.gitignore`
-  check under **Git** below.
+- **Who writes.**
+  - The project file — once, when a bundle is created and `.speccen/speccen-config.yaml` does not
+    exist, together with `.speccen/.gitignore` (or its line, if that file exists without it).
+  - The bundle file — once, at bundle creation, from the Mode answer.
+  - After that, both change only by the Architect's hand, or by the AI when the Architect asks for
+    that exact change in this conversation.
+  - A local file — never on the AI's own initiative; only when the Architect asks, and then only
+    after the `.gitignore` check under **Git** below.
 - **Chat is not configuration.** A remark like "just run through it" does not change the mode.
-  Offer to set it in the local file (personal, uncommitted) and write it only after the Architect
-  confirms. If the shared config locks the phase (or the bundle), say so instead — a locked
-  setting would be ignored.
-- **Git.** The bundle's `.gitignore` holds exactly one line: `speccen-config.local.yaml`. The
-  auto-commit step never stages the local file and never force-adds an ignored file.
-  **Before creating the local file**, make sure that `.gitignore` exists and lists it: add the line
-  if it is missing — the one write to `.gitignore` allowed after bundle creation. Then confirm
-  with `git check-ignore -q <path of the local file>` (it works before the file exists; exit code 0
+  Offer to set it in the bundle's local file (personal, uncommitted) and write it only after the
+  Architect confirms. If a lock covers it, say so instead — a locked setting would be ignored.
+- **Git.** `.speccen/.gitignore` and the bundle's own `.gitignore` each hold one line,
+  `speccen-config.local.yaml`. The auto-commit step never stages a local file and never force-adds
+  an ignored file. **Before creating a local file**, make sure a `.gitignore` covers it: add the
+  line if it is missing — the one write to a `.gitignore` allowed after creation. Then confirm with
+  `git check-ignore -q <path of the local file>` (it works before the file exists; exit code 0
   means ignored). If it does not exit 0, do not create the file and tell the Architect why. If git
   cannot answer because the folder is not a repository (exit code 128), there is nothing to
   commit, so the `.gitignore` line alone is enough.
-- **Audit.** The local file is not committed, so the committed record must show what applied:
+- **Audit.** The local files are not committed, so the committed record must show what applied:
   every transition entry in `log.md` states the effective mode and where it came from —
-  `default`, `shared config` or `local config`. No names — git authorship already identifies who
-  ran it.
+  `default`, `project config`, `project local config`, `bundle config` or `bundle local config`.
+  No names — git authorship already identifies who ran it.
 - **Visibility.** Every resume summary states the effective mode for the current phase and its
   source.
 
@@ -813,8 +876,7 @@ flow style or multiple documents. The AI reads the files as text; no parser is n
 
 ## Autonomous Execution
 
-This section applies to a phase whose **effective mode** is `autonomous` (see **Bundle
-Configuration**). In `gated` mode nothing here applies and every phase works as written.
+This section applies to a phase whose **effective mode** is `autonomous` (see **Configuration**). In `gated` mode nothing here applies and every phase works as written.
 
 ### The delegate
 
@@ -843,7 +905,7 @@ Even in `autonomous` mode, only the Architect:
    asking you to transcribe their stated decision verbatim (**Scribing a stated decision**, in the
    ADR Protocol) (Invariants 4 and 6);
 2. decides discretionary promotions to the durable store (Phase 06, Step 6, path 2);
-3. changes the mode or the config files (Bundle Configuration);
+3. changes the mode or the config files (Configuration);
 4. starts the optional passes (Phases 07 and 08) — and the delegate never starts `reconcile`
    either, a repo-level step run on main by whoever owns it, or by a CI step;
 5. waives a planned test (Invariant 10);
@@ -1039,14 +1101,15 @@ valid frontmatter before you use it. If an output is missing or incomplete, run 
 once. In `autonomous` mode, a unit that still fails is a gate-test failure.
 
 Log each launched unit in `log.md`: `- **HH:MM — [PHASE] subagent** — [unit] · model:
-[label] ([source])`.
+[tier] → [model] ([source])`.
 
 ### Model
 
-`phases.<phase>.model` (see Bundle Configuration) chooses the model for that phase's units:
-`haiku`, `sonnet`, `opus`, a full model id, or `inherit` — the default, the session's model. The
-personal local file can map a label to this host's own model name under `models:`. The gate-check
-verifier and every decision seat run on the session model, whatever the config says.
+`phases.<phase>.model` (see Configuration) chooses the **tier** for that phase's units: `economy`,
+`balanced`, `premium`, or `inherit` — the session's model. The tier is mapped to a model by
+`models:` — the person's local mapping first, then the project's, then the built-in Claude Code
+fallback. The gate-check verifier and every decision seat run on the session model, whatever the
+config says.
 
 ### Host support
 
@@ -1082,14 +1145,15 @@ Phase transitions are logged the same way, noting the transition signal verbatim
 effective mode with its source:
 
 ```markdown
-- **HH:MM — FEATURE ANALYSIS → CODE ANALYSIS** — [verbatim transition signal] · mode: gated (shared config)
+- **HH:MM — FEATURE ANALYSIS → CODE ANALYSIS** — [verbatim transition signal] · mode: gated (bundle config)
 ```
 
-The source is `default`, `shared config` or `local config`. In `autonomous` mode the entry names
+The source is `default`, `project config`, `project local config`, `bundle config` or
+`bundle local config`. In `autonomous` mode the entry names
 the passed gate test instead of a verbatim signal:
 
 ```markdown
-- **HH:MM — FEATURE ANALYSIS → CODE ANALYSIS** — delegate gate check passed ([summary](./phase-01-feature-analysis/summary.md#delegate-gate-check)) · mode: autonomous (local config)
+- **HH:MM — FEATURE ANALYSIS → CODE ANALYSIS** — delegate gate check passed ([summary](./phase-01-feature-analysis/summary.md#delegate-gate-check)) · mode: autonomous (bundle local config)
 ```
 
 The Architect may request deletion of the Prompt Log at any time. When deleted,
@@ -1241,8 +1305,8 @@ Use exactly these sections, in this order:
 2. **Bundle Control** — `STATE.md`, `log.md`, then `delegated-decisions.md` and
    `speccen-config.yaml` where they exist (in that order). `delegated-decisions.md` has
    frontmatter and is listed like any file. The config files have none: list
-   `speccen-config.yaml` by name as type `Config` with the description "Bundle configuration —
-   workflow mode". Never list `speccen-config.local.yaml` (personal, uncommitted), `.gitignore` or any `.gitkeep`.
+   `speccen-config.yaml` by name as type `Config` with the description "Bundle overrides of the
+   project configuration". Never list `speccen-config.local.yaml` (personal, uncommitted), `.gitignore` or any `.gitkeep`.
 3. **Phases** — one sub-table per phase, in **numeric phase order** (01 → 08). Within a
    phase, list its files in this fixed order: `phase.md`, `summary.md`, then any other
    file — `doc-*.md` (standard seeds order `executive`, `business`, `technical`; an optional
@@ -1277,7 +1341,7 @@ type: Index
 | [STATE](./STATE.md) | State | Live workflow state |
 | [log](./log.md) | Log | Prompt log & transition history |
 | [delegated-decisions](./delegated-decisions.md) | DelegatedDecisions | Decisions taken under delegation — review, adopt or override |
-| [speccen-config](./speccen-config.yaml) | Config | Bundle configuration — workflow mode |
+| [speccen-config](./speccen-config.yaml) | Config | Bundle overrides of the project configuration |
 
 ## Phases
 
@@ -1328,6 +1392,9 @@ Git (see Timestamps).
 
 ```
 .speccen/
+├── speccen-config.yaml   # CONFIG · project defaults for every bundle — not a store entry
+├── speccen-config.local.yaml # CONFIG · personal, never committed
+├── .gitignore            # one line: speccen-config.local.yaml
 ├── index.md              # DURABLE · regenerable root index, groups all kinds, links each entry
 ├── timeline.md           # DURABLE · regenerable oldest-first projection of the feature nodes
 ├── decisions/            # DURABLE · ADRs — deliberate forks (prescriptive: "do this")
@@ -1777,9 +1844,9 @@ These rules apply across all phases and all skills:
 1. Before Phase 05, the AI writes only to: the current phase's `phase.md` and
    `summary.md` (and, in Phase 03, its `prototype-<N>.md` records), `STATE.md`, `log.md`, and `adrs/` (new ADR files, or compliance
    responses appended to existing ones), plus — once, at bundle creation —
-   `speccen-config.yaml`, the bundle's `.gitignore` and the empty `files/.gitkeep` (and that
-   `.gitignore` line again, if it is
-   missing when the Architect asks for the local config file); and, in `autonomous` mode only,
+   `speccen-config.yaml`, the bundle's `.gitignore` and the empty `files/.gitkeep` — and, if they
+   do not exist yet, `.speccen/speccen-config.yaml` and `.speccen/.gitignore` (and a `.gitignore`
+   line again, if it is missing when the Architect asks for a local config file); and, in `autonomous` mode only,
    `delegated-decisions.md`. `index.md` may be regenerated at any time.
    Phase 05 is the only phase that modifies the codebase; Phases 01–04 and the optional
    passes 07–08 are read-only with respect to code — they write only bundle files. The one
@@ -1815,8 +1882,8 @@ These rules apply across all phases and all skills:
     the plan and the contract, never reverse-engineered from the just-written code, so tests
     catch intent-divergence rather than certify it. Planned tests must pass (or be explicitly
     waived by the Architect) before the accept gate; Phase 07 reviews their adequacy.
-11. The workflow **mode** comes only from the bundle's config files and is set only by the
-    Architect (see Bundle Configuration). The AI never chooses, changes or infers it, never
+11. The workflow **mode** comes only from the config files (project and bundle) and is set only
+    by the Architect (see Configuration). The AI never chooses, changes or infers it, never
     creates or edits either config file on its own initiative, and never runs a mode the files
     do not specify.
 12. In `autonomous` mode the AI acts as the Architect's delegate (see Autonomous Execution). It

@@ -138,19 +138,19 @@ resume. A new session asks for an id prefix, the feature name, the work kind and
 
 ## Configuration
 
-Each bundle carries two small YAML files that set the **workflow mode** — how the workflow
-leaves a phase:
+speccen is configured in small YAML files at two levels — your project (`.speccen/`) and each
+bundle — with a committed file and a personal one at each level:
 
-| File | Committed | Purpose |
+| File | Committed | Holds |
 |---|---|---|
-| `speccen-config.yaml` | Yes — with the bundle | The bundle's shared configuration |
-| `speccen-config.local.yaml` | No — the bundle's own `.gitignore` ignores it | Your personal override |
+| `.speccen/speccen-config.yaml` | yes | the project defaults: every phase, every key, the team's tier mapping |
+| `.speccen/speccen-config.local.yaml` | no | your own project-wide settings — mainly your tier mapping, for your budget or host |
+| `.speccen/bundles/<id>/speccen-config.yaml` | yes | this bundle's overrides, starting with your session-start Mode answer |
+| `.speccen/bundles/<id>/speccen-config.local.yaml` | no | your personal override for one bundle |
 
-`speccen-config.yaml` is created when the bundle starts: the **Mode** question at session start
-sets its `mode`. The local file does not exist by default — it appears only when you ask for it.
-It lets one developer run a bundle differently from the team (the bundle is committed `gated`,
-and a colleague chooses otherwise for their own sessions) without changing what the team
-committed. Both files are plain YAML with no frontmatter, and you edit them by hand.
+The project file is created with the first bundle, the bundle file with each bundle. The personal
+files do not exist until you ask for them, and `.speccen/.gitignore` keeps them out of git. All of
+them are plain YAML with no frontmatter, and you edit them by hand.
 
 ### Modes
 
@@ -188,63 +188,148 @@ and not your authority records.
 - **A run ends at close-out**, with one numbered review round: each delegated decision (adopt,
   override or later) and each graduation candidate (promote, keep local or later).
 
-### Per-phase overrides
+### The project defaults
+
+This is `.speccen/speccen-config.yaml` as it is created (`mode` comes from your first Mode
+answer). Every phase and every key is written out; `inherit` means "use the level above":
 
 ```yaml
-# speccen-config.yaml
+# speccen project configuration — committed. The defaults for every bundle in this repository.
+# A bundle overrides them in its own speccen-config.yaml; a person in speccen-config.local.yaml.
+
+# How the workflow leaves a phase:
+#   gated       stop at the end of the phase and wait for the Architect's go
+#   autonomous  the Architect's delegate decides, and advances once the gate test passes
+mode: gated
+lock: false                  # true: no bundle file and no local file can change anything
+
+# Per phase. "inherit" means: use the mode above, or the session's model.
+#   mode        inherit · gated · autonomous
+#   model       inherit · economy · balanced · premium — the tier for the phase's subagent work
+#   prototypes  0 or more — autonomous only: prototypes the delegate may build (Phase 03)
+#   lock        true: no bundle file and no local file can change this phase
+# Tiers say what the work needs. Each person maps them to models in their local file.
+# Decision seats and the gate-test verifier always run on the session's model.
+phases:
+  feature-analysis:          # 01 — discovery interview
+    mode: inherit
+    lock: false
+  code-analysis:             # 02 — evidence reading runs as a subagent
+    mode: inherit
+    model: economy
+    lock: false
+  compliance-review:         # 03 — ADR interview; optional prototypes run as subagents
+    mode: inherit
+    model: balanced
+    prototypes: 0
+    lock: false
+  specification:             # 04 — the plan and the intent freeze
+    mode: inherit
+    lock: false
+  implementation:            # 05 — the code and the accept
+    mode: inherit
+    lock: false
+  close-out:                 # 06 — the audience documents run as subagents
+    model: balanced
+    lock: false
+  retrospective:             # 07 — optional; the review runs as a subagent
+    model: premium
+    lock: false
+  reference:                 # 08 — optional; gathering and authoring run as a subagent
+    model: balanced
+    lock: false
+
+# Tier-to-model mapping — the team default, set for Claude Code.
+# A person's local file overrides it, per tier, for their own budget or host.
+models:
+  economy: haiku
+  balanced: sonnet
+  premium: opus
+```
+
+### Model tiers
+
+Phases with subagent work name a **tier** — what the work needs — not a model: `economy`,
+`balanced`, `premium`, or `inherit` (your session's model). The project file maps the tiers to
+Claude Code models. You map them to your own budget or host in your personal file, tier by tier:
+
+```yaml
+# .speccen/speccen-config.local.yaml — a tight budget
+models:
+  balanced: haiku
+  premium: sonnet
+```
+
+```yaml
+# .speccen/speccen-config.local.yaml — Copilot CLI or another host
+models:
+  economy: "<your host's small model>"
+  balanced: "<your host's mid-size model>"
+  premium: "<your host's large model>"
+```
+
+Gates, ADRs, the delegate's decisions and the gate-test verifier always run on your session's
+model, whatever the tiers say. Subagents need host support: Claude Code loads the plugin's
+`agents/speccen-worker.md`. Where that is not available, the work runs inline on your session's
+model and the AI tells you.
+
+### Bundle overrides and personal settings
+
+A bundle's `speccen-config.yaml` holds only what differs from the project:
+
+```yaml
+# This bundle's overrides of .speccen/speccen-config.yaml — committed. Set only what differs.
+mode: gated                  # chosen at session start
+
+# For example:
+# phases:
+#   specification:
+#     mode: gated
+#   compliance-review:
+#     prototypes: 2
+```
+
+Two setups worth knowing — each as a few lines in the project or the bundle file:
+
+```yaml
+# The delegate analyses; you own the specification and the accept
 mode: autonomous
 phases:
   specification:
-    mode: gated        # stop here: you review the specification before implementation starts
-    lock: true         # and no local file can remove this stop
+    mode: gated
+    lock: true
   implementation:
-    mode: gated        # stop here: you accept the implementation before close-out
+    mode: gated
+    lock: true
 ```
-
-This bundle runs autonomous, except that it stops at the specification and at the implementation
-accept. The specification stop is locked, so a local file cannot remove it.
-
-A phase's `mode` governs every point inside that phase where you would decide, including the gate
-at its end. The phase keys are `feature-analysis`, `code-analysis`, `compliance-review`,
-`specification` and `implementation`. Close-out has no exit gate and no key: it runs under the
-bundle `mode`. The optional `retrospective` and `reference` passes are always started by you, so
-they have no key either.
-
-Phase 03 can also take `prototypes: <n>` (`phases.compliance-review.prototypes`, default `0`). In
-`autonomous` mode it is how many prototypes the delegate may build for one material choice
-before it stops with a comparison for you to decide. Prototypes are optional and live outside your
-working tree; see Phase 03.
-
-Phases can also set a `model` for their **subagent units** — decision-free work such as Phase 02's
-evidence reading, Phase 03's prototypes, Phase 06's audience drafts, and the Retrospective and
-Reference passes:
 
 ```yaml
+# Fully autonomous, with prototypes for open choices
+mode: autonomous
 phases:
-  code-analysis:
-    model: haiku      # its evidence reading runs on haiku; the phase's decisions stay on your session's model
+  compliance-review:
+    prototypes: 2
 ```
 
-Labels are `haiku`, `sonnet`, `opus`, a full model id, or `inherit` (the default). If your host
-names models differently, map them in your local file under `models:`. Gates, ADRs and the
-delegate's choices always run on your session's model. Subagents need host support: Claude Code
-loads the plugin's `agents/speccen-worker.md`. Where that is not available, the work runs inline on
-your session's model and the AI tells you.
+Your personal bundle file changes only your own sessions:
+
+```yaml
+# Your personal override for this bundle only — not committed. Created only when you ask.
+mode: autonomous
+```
 
 ### Which setting wins
 
-For the phase being left, the first value found wins:
+For each phase, the most specific setting wins:
 
-1. your local file → `phases.<phase>.mode`
-2. the shared file → `phases.<phase>.mode`
-3. your local file → `mode`
-4. the shared file → `mode`
-5. `gated`
+1. the phase's own `mode` — your bundle file, then the bundle file, then your project file, then
+   the project file;
+2. then the top-level `mode`, in the same order;
+3. then `gated`.
 
-A team can stop a local file from changing a phase by locking it in the **shared** file:
-`phases.<phase>.lock: true` for one phase, or `lock: true` at the top level for the whole bundle.
-A locked phase ignores your local file, and the AI tells you once. A `lock` written in the local
-file is ignored.
+`inherit` counts as "not set here". A `lock: true` in the project file shuts out the bundle file
+and every personal file for that phase (or for everything, at the top level); a lock in the bundle
+file shuts out only personal files. A lock in a personal file does nothing.
 
 ### Safety
 
@@ -253,11 +338,11 @@ file is ignored.
 - The AI never chooses or changes the mode on its own. Saying "just run through it" in chat
   changes nothing; it offers to put the setting in your local file and writes it only after you
   confirm.
-- Before it creates your local file, the AI checks that the bundle's `.gitignore` ignores it, adds
-  the line if it is missing, and refuses to create the file if it still cannot make sure.
+- Before it creates a personal file, the AI checks that a `.gitignore` ignores it, adds the line if
+  it is missing, and refuses to create the file if it still cannot make sure.
 - Each phase transition in `log.md` records the mode that applied and where it came from
-  (`default`, `shared config` or `local config`), so the committed history shows what ran even
-  though the local file is not committed.
+  (`default`, `project config`, `project local config`, `bundle config` or `bundle local config`),
+  so the committed history shows what ran even though personal files are not committed.
 - Each phase boundary is committed as usual when the project is a git repository, so every
   autonomous phase has a revert point.
 
@@ -277,7 +362,7 @@ files rather than one growing document. Its shape:
 ├── STATE.md                              # live workflow state: current phase, status, pending action
 ├── log.md                                # every user prompt, verbatim, date-grouped newest-first
 ├── delegated-decisions.md                # autonomous mode only: decisions the delegate took, for you to adopt or override
-├── speccen-config.yaml                   # bundle configuration: workflow mode, with optional per-phase overrides — committed
+├── speccen-config.yaml                   # this bundle's overrides of the project configuration — committed
 ├── speccen-config.local.yaml             # optional personal override — never committed (the bundle's .gitignore ignores it)
 ├── .gitignore                            # one line: speccen-config.local.yaml
 ├── files/                                # supporting files for this request — always committed
@@ -421,6 +506,9 @@ store at the repo root:
 
 ```
 .speccen/
+├── speccen-config.yaml# CONFIG · project defaults for every bundle
+├── speccen-config.local.yaml # CONFIG · your personal settings, never committed
+├── .gitignore     # one line: speccen-config.local.yaml
 ├── index.md       # DURABLE · regenerable single root index, grouped by kind
 ├── timeline.md    # DURABLE · regenerable oldest-first projection of the feature nodes
 ├── decisions/     # DURABLE · ADRs — deliberate forks (prescriptive)

@@ -134,32 +134,35 @@ Detail: "Audience documents" in `README.md`.
 
 ## Configuration — the workflow mode
 
-Two small YAML files in each bundle set how the workflow leaves a phase:
-`speccen-config.yaml` (shared, committed) and `speccen-config.local.yaml` (a personal override,
-never committed). They are **inputs from the Architect**, not documents: no frontmatter, no
-navigation bar, and the AI only reads them.
+Small YAML files at two levels set how the workflow runs: the **project** defaults in
+`.speccen/speccen-config.yaml`, and each **bundle**'s overrides in its own
+`speccen-config.yaml`. At each level a personal `speccen-config.local.yaml`, never committed, lets
+one person differ without changing what the team committed. They are **inputs from the
+Architect**, not documents: no frontmatter, no navigation bar, and the AI only reads them. The
+project file is configuration, not a store entry.
 
 - **Two modes.** `gated` — every phase ends at an Architect gate; the default. `autonomous` — the
   Architect's delegate takes the Architect's decisions and advances once each phase's gate test
   passes.
-- **Per phase.** `phases.<phase>.mode` overrides the bundle's `mode` for every Architect
-  touchpoint inside that phase, including its exit gate. The keys are the five core phase slugs;
-  close-out runs under the bundle `mode`, and the optional passes run the same in both modes.
-- **Resolution.** The first level that has a value wins: local phase, shared phase, local
-  `mode`, shared `mode`, then `gated`. The local file exists so one developer can run a bundle
-  differently without changing what the team committed.
+- **Per phase.** `phases.<phase>.mode` sets one phase; `inherit` means "use the level above".
+- **Resolution.** The most specific setting wins: the phase's own mode in the bundle local,
+  bundle, project local and project files, then the top-level `mode` in the same order, then
+  `gated`.
+- **Model tiers.** Phases with subagent work name a tier — `economy`, `balanced`, `premium` or
+  `inherit` — not a model. The project file maps tiers to Claude Code models; each person can remap
+  them for their own budget or host. Decision seats stay on the session's model.
 - **Subagents.** Decision-free units (02's evidence reading, 03's prototypes, 06's audience
-  drafts, the 07 and 08 passes, the autonomous gate-check verifier) can run in a `speccen-worker`
-  subagent, optionally on a cheaper model (`phases.<phase>.model`). Decision seats stay in the main
-  session, which is the only writer of state.
-- **Locks.** The shared file can lock a phase or the whole bundle (`lock: true`). The local file
-  is then ignored for it, and a `lock` written in the local file counts for nothing.
+  drafts, the 07 and 08 passes, the autonomous gate-check verifier) run in a `speccen-worker`
+  subagent on their tier's model. The main session is the only writer of state.
+- **Locks.** A lock in the project file binds the bundle file and every personal file; a lock in
+  the bundle file binds only personal files; a lock in a personal file counts for nothing.
 - **Fail-safe.** Every doubt resolves to `gated`: an invalid value is `gated` at its own level
   (never skipped to a more permissive one), and an unreadable file makes the whole bundle `gated`.
-- **Ownership.** The AI writes the shared file once, at bundle creation, from the session-start
-  Mode question. It never chooses, changes or infers the mode on its own (Invariant 11).
-- **Audit.** The local file is invisible to teammates, so each transition entry in the committed
-  `log.md` records the effective mode and its source.
+- **Ownership.** The AI writes the project file once (with the first bundle) and each bundle file
+  once (from the session-start Mode question). It never chooses, changes or infers the mode on its
+  own (Invariant 11).
+- **Audit.** Personal files are invisible to teammates, so each transition entry in the committed
+  `log.md` records the effective mode and the file it came from.
 - **The delegate.** In `autonomous` mode the agent acts as the Architect's delegate: it takes the
   decision seat, never the Architect's identity or authority records. It decides on a fixed basis
   (ADRs, the Architect's recorded prompts, the conventions, frozen artifacts), proves each phase
@@ -167,8 +170,8 @@ navigation bar, and the AI only reads them.
   what it decides in `delegated-decisions.md`. ADR decisions, durable-store promotions, test
   waivers, phase skips, mode changes and the optional passes stay with the Architect.
 
-The rules live in the governing skill → "Bundle Configuration" and "Autonomous Execution"; the
-README → "Configuration" shows how to use them.
+The rules live in the governing skill → "Configuration" and "Autonomous Execution"; the README →
+"Configuration" shows how to use them.
 
 ---
 

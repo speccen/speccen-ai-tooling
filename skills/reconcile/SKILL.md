@@ -180,6 +180,8 @@ fixing or flagging, say so plainly.
   are superseded-not-deleted, which is a human/workflow act, not reconciliation's.
 - It does **not** run inside a developer's worktree as part of their workflow — it is a
   repo-level step on main after merge. In `autonomous` mode the delegate never starts it either.
+- It does **not** read or change the configuration files in `.speccen/` — they are configuration,
+  not store entries.
 
 ---
 
