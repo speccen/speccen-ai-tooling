@@ -39,6 +39,10 @@ Phase 03 is the gate that protects Phase 04 and Phase 05 from being entered prem
 
 ## COMPLIANCE & REVIEW PHASE Execution
 
+**Extensions.** Before Step 1, apply the active extensions in `.speccen/extensions/compliance-review/`
+(governing skill → Extensions) and record them in the Extensions table of `{{PHASE_FILE}}`. They
+add to or tighten this phase; they never relax it.
+
 ### Step 1 — Log the prompt
 
 Append the Phase 03 initiating prompt (or iteration prompt) to `log.md`, verbatim.
@@ -452,6 +456,7 @@ In `autonomous` mode see **Mode behaviour**.
 
 Each Compliance & Review Phase iteration is complete when:
 
+- [ ] Extensions: every file in `.speccen/extensions/compliance-review/` is in the Extensions table; every active one was applied, each applicable requirement met or marked "not applicable, because…"
 - [ ] Every ADR file has a compliance response appended within it
 - [ ] All open questions are resolved or explicitly escalated
 - [ ] Affected phase files are updated to reflect ADR constraints

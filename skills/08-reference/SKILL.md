@@ -166,6 +166,10 @@ Execution). Steps 1–2 and 8–12 stay in the main session.*
 Initialise `{{PHASE_FILE}}` with frontmatter (`type: Phase`, `phase: "08 — Reference"`, `status: IN PROGRESS`, one-line `description`) and the navigation bar under
 the H1. `phase.md` holds only thin working notes; the deliverable is `reference.html`.
 
+**Extensions.** Before Step 1, apply the active extensions in `.speccen/extensions/reference/`
+(governing skill → Extensions) and record them in the Extensions table of `{{PHASE_FILE}}`. They
+add to or tighten this phase; they never relax it.
+
 ### Step 1 — Log the prompt
 
 Append the Architect's documentation request to `log.md`, verbatim.
@@ -344,6 +348,7 @@ Then regenerate `index.md` so the Phase 08 files appear.
 
 Reference Phase is complete when:
 
+- [ ] Extensions: every file in `.speccen/extensions/reference/` is in the Extensions table; every active one was applied, each applicable requirement met or marked "not applicable, because…"
 - [ ] Scope was agreed with the Architect before the codebase was scanned
 - [ ] `reference.html` is self-contained, STE, and sources material from across the whole bundle
 - [ ] The reference is **depth-layered** (progressive disclosure), not a flat topic catalogue; a reader can stop at any layer with a true picture

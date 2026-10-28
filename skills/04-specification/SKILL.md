@@ -51,6 +51,10 @@ no files are modified, and no implementation begins in this phase — regardless
 of how the prompt is worded. The plan is complete when the Architect or its
 delegate signals go for Phase 05.**
 
+**Extensions.** Before Step 1, apply the active extensions in `.speccen/extensions/specification/`
+(governing skill → Extensions) and record them in the Extensions table of `{{PHASE_FILE}}`. They
+add to or tighten this phase; they never relax it.
+
 ### Step 1 — Log the prompt
 
 Append the Phase 04 initiating prompt to `log.md`, verbatim.
@@ -512,6 +516,7 @@ and replaces Steps 9 and 10 with:
 
 Phase 04 output is complete when:
 
+- [ ] Extensions: every file in `.speccen/extensions/specification/` is in the Extensions table; every active one was applied, each applicable requirement met or marked "not applicable, because…"
 - [ ] Proposed changes summary lists all affected files with their change type
 - [ ] Target-state execution flow is rendered as an ASCII diagram, linking back to the Phase 02 as-is diagram
 - [ ] Strategy evaluation is present if multiple approaches were identified

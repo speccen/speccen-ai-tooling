@@ -60,6 +60,10 @@ The review draws on the whole bundle as its blueprint:
 Initialise `{{PHASE_FILE}}` with frontmatter (`type: Phase`, `phase: "07 — Retrospective"`, `status: IN PROGRESS`, one-line `description`) and the navigation bar under the
 H1. `phase.md` holds only thin working notes; the deliverable is `retrospective.md`.
 
+**Extensions.** Before Step 1, apply the active extensions in `.speccen/extensions/retrospective/`
+(governing skill → Extensions) and record them in the Extensions table of `{{PHASE_FILE}}`. They
+add to or tighten this phase; they never relax it.
+
 ### Step 1 — Log the prompt
 
 Append the Architect's review request to `log.md`, verbatim.
@@ -308,6 +312,7 @@ Then regenerate `index.md` so the Phase 07 files appear.
 
 Retrospective Phase is complete when:
 
+- [ ] Extensions: every file in `.speccen/extensions/retrospective/` is in the Extensions table; every active one was applied, each applicable requirement met or marked "not applicable, because…"
 - [ ] Every finding cites evidence (file:line, or a convention/ADR/plan reference)
 - [ ] Findings are categorised by severity (CRITICAL → INFO)
 - [ ] Compliance against conventions, the plan, and every ADR is assessed

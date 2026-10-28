@@ -46,6 +46,10 @@ If any of these inputs are missing or ambiguous, settle them in the interview (S
 
 ## Phase 01 Execution
 
+**Extensions.** Before Step 1, apply the active extensions in `.speccen/extensions/feature-analysis/`
+(governing skill → Extensions) and record them in the Extensions table of `{{PHASE_FILE}}`. They
+add to or tighten this phase; they never relax it.
+
 ### Step 1 — Log the prompt
 
 Append the initiating prompt to `log.md`, verbatim, before doing anything else
@@ -255,6 +259,7 @@ signal advances it.
 
 Phase 01 output is complete when:
 
+- [ ] Extensions: every file in `.speccen/extensions/feature-analysis/` is in the Extensions table; every active one was applied, each applicable requirement met or marked "not applicable, because…"
 - [ ] The request is restated in precise technical terms
 - [ ] The domain context is documented
 - [ ] Scope boundaries are explicit — including what is unclear
