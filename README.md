@@ -348,6 +348,43 @@ file shuts out only personal files. A lock in a personal file does nothing.
 
 ---
 
+## Extensions
+
+Your project can add its own rules to a phase without forking speccen: **extensions**, committed
+markdown files the phase reads and applies. A team might require certain kinds of tests, a
+formatting step, or a document template.
+
+```
+.speccen/extensions/
+├── specification/
+│   └── testing.md         # required kinds of tests go into the Test Plan
+├── implementation/
+│   └── testing.md         # how those tests are run
+└── retrospective/
+    └── testing.md         # check the required tests are real, not placeholders
+```
+
+- **Folder** = the phase (`feature-analysis` … `reference`); **file name** = the topic. A folder
+  can hold any number of files; they apply in file-name order.
+- **Every file states why.** Frontmatter `type: Extension`, `status: active` (or `draft`),
+  `owner`, `since` and `why`, then *What* and *How*. Without a `why` it is not applied.
+- **Add or tighten only.** An extension can add inputs, conventions, steps, required items,
+  criteria, stop conditions and templates, or make a rule stricter. It can never remove a step,
+  weaken a gate or criterion, or widen what the delegate may decide — such a part is ignored.
+- **Nothing disappears silently.** Every item an extension adds is tagged `[ext: <topic>]`. A
+  requirement that applies is met or marked "not applicable, because …"; only you can set it
+  aside.
+- **Visible in every phase.** Each `phase.md` has an **Extensions applied** table — every file,
+  with its why, where it applied and its outcome — and the summary and `log.md` name them too.
+- **Conflicts are yours to settle.** An extension that contradicts an ADR, your brief or another
+  extension becomes an interview question in `gated` mode and a stop in `autonomous` mode.
+
+Extensions are instructions the AI follows, so protect the folder in `CODEOWNERS`, for example
+`/.speccen/extensions/ @speccen/team-leads`. A complete example — required test kinds — is in
+[`examples/extensions/`](examples/extensions/).
+
+---
+
 ## Core Principles
 
 ### The analysis bundle
@@ -509,6 +546,7 @@ store at the repo root:
 ├── speccen-config.yaml# CONFIG · project defaults for every bundle
 ├── speccen-config.local.yaml # CONFIG · your personal settings, never committed
 ├── .gitignore     # one line: speccen-config.local.yaml
+├── extensions/    # EXTENSIONS · your project rules, one folder per phase
 ├── index.md       # DURABLE · regenerable single root index, grouped by kind
 ├── timeline.md    # DURABLE · regenerable oldest-first projection of the feature nodes
 ├── decisions/     # DURABLE · ADRs — deliberate forks (prescriptive)

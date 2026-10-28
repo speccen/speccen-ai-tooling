@@ -100,7 +100,7 @@ compact `summary.md`, and a resuming reader loads only `STATE.md` plus the curre
 ├── log.md                  every user prompt, verbatim, newest-first
 ├── index.md                regenerable listing
 ├── delegated-decisions.md  autonomous mode only: the delegate's decision record
-├── speccen-config.yaml     bundle configuration — workflow mode (+ optional local override, uncommitted)
+├── speccen-config.yaml     this bundle's overrides of the project configuration (+ optional local override, uncommitted)
 ├── files/                  supporting files for this request (an empty .gitkeep keeps it in git)
 ├── phase-01-…/ … phase-08-…/   phase.md + summary.md (+ phase-specific docs)
 └── adrs/                   one file per Architecture Decision Record (feature-local, Tier-1)
@@ -175,6 +175,18 @@ The rules live in the governing skill → "Configuration" and "Autonomous Execut
 
 ---
 
+## Extensions — project rules per phase
+
+A project adds its own rules to a phase as committed markdown files in
+`.speccen/extensions/<phase>/<topic>.md`. They only **add or tighten** — inputs, conventions,
+steps, required items, criteria, stop conditions, templates — and never relax a gate, a criterion,
+an invariant or the delegate's limits. Each states its *why*; everything it adds is tagged
+`[ext: <topic>]`; an applicable requirement is met or marked "not applicable", and only the
+Architect can set one aside. Every `phase.md` records them in an **Extensions applied** table.
+They are configuration, not store entries. The rules live in the governing skill → "Extensions".
+
+---
+
 ## The durable store — decisions that outlive the bundle
 
 The bundle is disposable, but the **decisions and lessons** it produces are not. They
@@ -184,6 +196,7 @@ graduate into a permanent, repo-native store at the repo root:
 .speccen/
 ├── index.md       DURABLE · regenerable single root index, grouped by kind
 ├── timeline.md    DURABLE · regenerable oldest-first projection of the feature nodes
+├── extensions/    EXTENSIONS · committed project rules, one folder per phase
 ├── decisions/     DURABLE · ADRs — deliberate forks (prescriptive)
 ├── lessons/       DURABLE · experiential knowledge ("X bit us")
 ├── notes/         DURABLE · hiccup-resolutions + small informal decisions (low-ceremony)
@@ -264,6 +277,7 @@ across many disposable feature runs.
 | The bundle model and its rationale | `README.md` → "The analysis bundle" |
 | How to set the workflow mode, per bundle or per phase | `README.md` → "Configuration" |
 | How autonomous mode works | governing skill → "Autonomous Execution" |
+| How extensions add project rules to a phase | governing skill → "Extensions" |
 | How subagents and per-phase models work | governing skill → "Subagent Execution" |
 | The durable store's full design | governing skill → "Durable Store" |
 | Reconciling the store after concurrent team merges | `skills/reconcile/SKILL.md` |

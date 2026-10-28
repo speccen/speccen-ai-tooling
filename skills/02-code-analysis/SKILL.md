@@ -38,6 +38,10 @@ No implementation is proposed in this phase — only understanding is built.
 
 ## CODE ANALYSIS PHASE Execution
 
+**Extensions.** Before Step 1, apply the active extensions in `.speccen/extensions/code-analysis/`
+(governing skill → Extensions) and record them in the Extensions table of `{{PHASE_FILE}}`. They
+add to or tighten this phase; they never relax it.
+
 ### Step 1 — Log the prompt
 
 Append the Phase 02 initiating prompt to `log.md`, verbatim.
@@ -445,6 +449,7 @@ signal advances it.
 
 Phase 02 output is complete when:
 
+- [ ] Extensions: every file in `.speccen/extensions/code-analysis/` is in the Extensions table; every active one was applied, each applicable requirement met or marked "not applicable, because…"
 - [ ] Architecture overview is documented with position in pipeline/system
 - [ ] Full behavioural analysis with all execution paths is documented
 - [ ] Primary execution flow is rendered as an ASCII flow diagram matching the code's real branches

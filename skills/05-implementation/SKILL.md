@@ -82,6 +82,10 @@ Initialise `{{PHASE_FILE}}` with frontmatter (`type: Phase`, `phase: "05 — Imp
 `status: IN PROGRESS`, one-line `description`) and emit the common anchors plus the
 phase-specific anchors `deviations` and `implementation-summary`.
 
+**Extensions.** Before Step 1, apply the active extensions in `.speccen/extensions/implementation/`
+(governing skill → Extensions) and record them in the Extensions table of `{{PHASE_FILE}}`. They
+add to or tighten this phase; they never relax it.
+
 ### Step 1 — Log the prompt
 
 Append the Phase 05 initiating prompt to `log.md`, verbatim.
@@ -392,6 +396,7 @@ Update `{{FOLDER_NAME}}/STATE.md`:
 ## Quality Criteria
 
 ### Phase 05a complete when:
+- [ ] Extensions: every file in `.speccen/extensions/implementation/` is in the Extensions table; every active one was applied, each applicable requirement met or marked "not applicable, because…"
 - [ ] Project conventions re-read and re-confirmed before implementation started
 - [ ] All Implementation Plan checklist items are ticked
 - [ ] All deviations are documented with decisions by the Architect or its delegate

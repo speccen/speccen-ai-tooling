@@ -70,6 +70,10 @@ working notes for this phase — initialise it with frontmatter (`type: Phase`,
 common anchors (`phase-top`, `outcome`, `open-items`) plus the phase-specific anchor
 `documentation`. The substantive content lives in the three `doc-*.md` files, not here.
 
+**Extensions.** Before Step 1, apply the active extensions in `.speccen/extensions/close-out/`
+(governing skill → Extensions) and record them in the Extensions table of `{{PHASE_FILE}}`. They
+add to or tighten this phase; they never relax it.
+
 ### Step 1 — Log the prompt
 
 Append the Phase 06 initiating prompt to `log.md`, verbatim.
@@ -432,6 +436,7 @@ Steps 6 to 9 change:
 
 Close-out Phase is complete when:
 
+- [ ] Extensions: every file in `.speccen/extensions/close-out/` is in the Extensions table; every active one was applied, each applicable requirement met or marked "not applicable, because…"
 - [ ] All checklist items are ticked or marked skipped with reason
 - [ ] `doc-technical.md` is written (files created/modified/deleted, deviations, learnings, results)
 - [ ] `doc-business.md` is written (business process end-to-end; UI/UX as where it surfaces)
