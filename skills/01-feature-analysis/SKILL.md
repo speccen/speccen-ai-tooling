@@ -8,6 +8,8 @@ description: Phase 01 of speccen. Use when capturing and structuring a deep unde
 
 > File paths, frontmatter, anchors, and the navigation bar in this skill follow the
 > **Bundle & File Naming Conventions** defined in `skills/00-governing-workflow/SKILL.md`.
+> Regenerate `index.md` in the step that creates a bundle file or changes its `status` or
+> `description` (governing skill → `index.md` → When it is regenerated).
 > Every `phase.md` and `summary.md` carries the navigation bar directly under its H1 title;
 > `doc-*.md` and ADR files do not. For this phase,
 > `{{PHASE_DIR}}` = `{{FOLDER_NAME}}/phase-01-feature-analysis`, so
@@ -271,5 +273,6 @@ Phase 01 output is complete when:
 - [ ] Open questions are listed, or explicitly stated as none
 - [ ] `{{PHASE_FILE}}` emits the required anchors
 - [ ] `{{SUMMARY_FILE}}` is written and links back to the phase file
+- [ ] `index.md` lists every bundle file this phase wrote, with its current `status` and `description`
 - [ ] `gated`: `STATE.md` reflects `AWAITING ARCHITECT REVIEW`
 - [ ] `autonomous`: `## Delegate gate check` is written in the summary, with evidence for every item

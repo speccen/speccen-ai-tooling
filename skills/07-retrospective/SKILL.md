@@ -8,6 +8,8 @@ description: Optional post-06 pass of speccen. Use when the Architect requests a
 
 > File paths, frontmatter, anchors, and the navigation bar in this skill follow the
 > **Bundle & File Naming Conventions** defined in `skills/00-governing-workflow/SKILL.md`.
+> Regenerate `index.md` in the step that creates a bundle file or changes its `status` or
+> `description` (governing skill → `index.md` → When it is regenerated).
 > For this phase, `{{PHASE_DIR}}` = `{{FOLDER_NAME}}/phase-07-retrospective`, so
 > `{{PHASE_FILE}}` = `{{PHASE_DIR}}/phase.md`, `{{SUMMARY_FILE}}` = `{{PHASE_DIR}}/summary.md`,
 > and the Retrospective Report is `{{PHASE_DIR}}/retrospective.md`.
@@ -322,4 +324,5 @@ Retrospective Phase is complete when:
 - [ ] `retrospective.md` is written with `type: Retrospective` and the `assessment` field set
 - [ ] `{{SUMMARY_FILE}}` is written and links to the report
 - [ ] GitHub Issues, if requested, were created only after explicit confirmation
-- [ ] `STATE.md` reflects the completed review and `index.md` is regenerated
+- [ ] `STATE.md` reflects the completed review
+- [ ] `index.md` lists every bundle file this phase wrote, with its current `status` and `description`

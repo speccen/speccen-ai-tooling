@@ -8,6 +8,8 @@ description: Optional post-06 pass of speccen. Use when the Architect requests a
 
 > File paths, frontmatter, anchors, and the navigation bar in this skill follow the
 > **Bundle & File Naming Conventions** defined in `skills/00-governing-workflow/SKILL.md`.
+> Regenerate `index.md` in the step that creates a bundle file or changes its `status` or
+> `description` (governing skill → `index.md` → When it is regenerated).
 > For this phase, `{{PHASE_DIR}}` = `{{FOLDER_NAME}}/phase-08-reference`,
 > so `{{PHASE_FILE}}` = `{{PHASE_DIR}}/phase.md`, `{{SUMMARY_FILE}}` = `{{PHASE_DIR}}/summary.md`.
 > The deliverable is `{{PHASE_DIR}}/reference.html` (the authored source), with
@@ -361,4 +363,5 @@ Reference Phase is complete when:
 - [ ] `reference.md` is extracted from the HTML as a reduced projection and matches its content
 - [ ] If a feature node exists, the reference is copied into `features/<id>/`, the node's `reference` edge is set, and `timeline.md` is regenerated
 - [ ] `{{SUMMARY_FILE}}` is written and links to both forms
-- [ ] `STATE.md` reflects the completed pass and `index.md` is regenerated
+- [ ] `STATE.md` reflects the completed pass
+- [ ] `index.md` lists every bundle file this phase wrote, with its current `status` and `description`

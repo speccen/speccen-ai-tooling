@@ -8,6 +8,8 @@ description: the Compliance & Review Phase of speccen. Use when iterating analys
 
 > File paths, frontmatter, anchors, and the navigation bar in this skill follow the
 > **Bundle & File Naming Conventions** defined in `skills/00-governing-workflow/SKILL.md`.
+> Regenerate `index.md` in the step that creates a bundle file or changes its `status` or
+> `description` (governing skill → `index.md` → When it is regenerated).
 > Every `phase.md` and `summary.md` carries the navigation bar directly under its H1 title;
 > `doc-*.md` and ADR files do not. For this phase,
 > `{{PHASE_DIR}}` = `{{FOLDER_NAME}}/phase-03-compliance-review`, so
@@ -465,5 +467,6 @@ Each Compliance & Review Phase iteration is complete when:
 - [ ] Definition of Ready is explicitly evaluated against all eight criteria
 - [ ] Every prototype that was run has a `prototype-<N>.md` with its outcome, its worktree was removed after the choice, and none of its code is in your working tree (normally your feature branch)
 - [ ] `{{SUMMARY_FILE}}` is written and links back to the phase file
+- [ ] `index.md` lists every bundle file this phase wrote, with its current `status` and `description`
 - [ ] `gated`: `STATE.md` reflects `AWAITING ARCHITECT REVIEW`
 - [ ] `autonomous`: `## Delegate gate check` is written in the summary, with evidence for every item
