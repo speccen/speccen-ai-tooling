@@ -8,6 +8,8 @@ description: the Close-out Phase of speccen. Use after an implementation is acce
 
 > File paths, frontmatter, anchors, and the navigation bar in this skill follow the
 > **Bundle & File Naming Conventions** defined in `skills/00-governing-workflow/SKILL.md`.
+> Regenerate `index.md` in the step that creates a bundle file or changes its `status` or
+> `description` (governing skill → `index.md` → When it is regenerated).
 > Every `phase.md` and `summary.md` carries the navigation bar directly under its H1 title;
 > `doc-*.md` and ADR files do not. For this phase,
 > `{{PHASE_DIR}}` = `{{FOLDER_NAME}}/phase-06-close-out`, so
@@ -329,6 +331,9 @@ Update `{{FOLDER_NAME}}/STATE.md`:
 - `Phase Status` → `COMPLETE`
 - `Pending Architect Action` → `none`
 
+Then regenerate the bundle's `index.md`. No phase transition follows close-out, so this is the
+index the Step 10 commit carries.
+
 ### Step 9 — Close the core workflow
 
 *In `autonomous` mode replace the closing message with the end-of-run report — see **Mode behaviour**.*
@@ -359,7 +364,7 @@ or neither:
 - If both checks pass, stage **only these paths**:
   - the files listed in `doc-technical.md` under Files Created, Files Modified and Files Deleted
     (a rename is its old path deleted and its new path created);
-  - the bundle folder `{{FOLDER_NAME}}`;
+  - the bundle folder `{{FOLDER_NAME}}`, with the bundle's `index.md` regenerated in Step 8;
   - the durable-store entries this close-out wrote under `.speccen/` (Step 6).
 
   Stage them by path — `git add -A -- <paths>` stages creations, changes and deletions alike —
@@ -451,4 +456,5 @@ Close-out Phase is complete when:
 - [ ] Feature node written (lightweight spine: `work-kind`, `date`, `touches`, `produced`; `produced-by` inverse on each graduated entry), unless the bundle was reverted; store `index.md` and `timeline.md` regenerated
 - [ ] The Phase 04 specification is graduated into the feature folder and the node's `specification` edge is set
 - [ ] The final commit holds only this run's files (the `doc-technical.md` lists, the bundle, the graduated store entries), and any files left out are reported
+- [ ] `index.md` lists every bundle file this phase wrote, with its current `status` and `description`
 - [ ] `STATE.md` is `COMPLETE`

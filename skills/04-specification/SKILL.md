@@ -8,6 +8,8 @@ description: the Specification Phase of speccen. Use when producing a detailed, 
 
 > File paths, frontmatter, anchors, and the navigation bar in this skill follow the
 > **Bundle & File Naming Conventions** defined in `skills/00-governing-workflow/SKILL.md`.
+> Regenerate `index.md` in the step that creates a bundle file or changes its `status` or
+> `description` (governing skill → `index.md` → When it is regenerated).
 > Every `phase.md` and `summary.md` carries the navigation bar directly under its H1 title;
 > `doc-*.md` and ADR files do not. For this phase,
 > `{{PHASE_DIR}}` = `{{FOLDER_NAME}}/phase-04-specification`, so
@@ -534,5 +536,6 @@ Phase 04 output is complete when:
 - [ ] The specification includes a **Requirements & acceptance scenarios** section (`SHALL` / `WHEN–THEN`), covering error/edge behaviour, not only the happy path
 - [ ] Specification diagrams were verified to render
 - [ ] `{{SUMMARY_FILE}}` is written and links to the plan, the specification, and both stakeholder seeds
+- [ ] `index.md` lists every bundle file this phase wrote, with its current `status` and `description`
 - [ ] `gated`: `STATE.md` reflects `AWAITING ARCHITECT REVIEW`
 - [ ] `autonomous`: `## Delegate gate check` is written in the summary, with evidence for every item

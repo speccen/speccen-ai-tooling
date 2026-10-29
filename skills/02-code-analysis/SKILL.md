@@ -8,6 +8,8 @@ description: the Code Analysis Phase of speccen. Use when performing a deep anal
 
 > File paths, frontmatter, anchors, and the navigation bar in this skill follow the
 > **Bundle & File Naming Conventions** defined in `skills/00-governing-workflow/SKILL.md`.
+> Regenerate `index.md` in the step that creates a bundle file or changes its `status` or
+> `description` (governing skill → `index.md` → When it is regenerated).
 > Every `phase.md` and `summary.md` carries the navigation bar directly under its H1 title;
 > `doc-*.md` and ADR files do not. For this phase,
 > `{{PHASE_DIR}}` = `{{FOLDER_NAME}}/phase-02-code-analysis`, so
@@ -463,5 +465,6 @@ Phase 02 output is complete when:
 - [ ] Executive Summary is written under the `outcome` anchor
 - [ ] Evolution-gap determination made: doc generated (evidence-backed) or negative recorded visibly in the summary
 - [ ] `{{SUMMARY_FILE}}` is written and links back to the phase file
+- [ ] `index.md` lists every bundle file this phase wrote, with its current `status` and `description`
 - [ ] `gated`: `STATE.md` reflects `AWAITING ARCHITECT REVIEW`
 - [ ] `autonomous`: `## Delegate gate check` is written in the summary, with evidence for every item

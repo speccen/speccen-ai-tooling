@@ -488,7 +488,7 @@ To **resume**, the Architect names the existing bundle id (or speccen lists the 
    leaves open (Phase 01, Step 2a).
 2. Only if no description was given at all, ask for one — in a single plain question.
 3. Create the bundle skeleton in `{{FOLDER_NAME}}`:
-   - `STATE.md` (see template below), `log.md` (empty history), `index.md` (regenerable)
+   - `STATE.md` (see template below) and `log.md` (empty history); `index.md` follows in step 4
    - `speccen-config.yaml` — the bundle's overrides (see **Configuration**), with `mode` from the
      Mode answer — and `.gitignore` (the single line `speccen-config.local.yaml`); never a local
      config file
@@ -499,7 +499,9 @@ To **resume**, the Architect names the existing bundle id (or speccen lists the 
    - `adrs/` (empty)
    - `files/` with an empty `.gitkeep`, so the folder is committed and pushed even while it
      holds nothing else
-4. Set `STATE.md` to register `FEATURE ANALYSIS PHASE` / `IN PROGRESS`.
+4. Set `STATE.md` to register `FEATURE ANALYSIS PHASE` / `IN PROGRESS`. Then generate `index.md`
+   from the skeleton (see **`index.md`** → When it is regenerated): it lists the Bundle Control
+   files and the Phase 01 stubs.
 5. Read the **Feature Analysis skill**:
    `skills/01-feature-analysis/SKILL.md`
 6. Execute Phase 01 under the governance of that skill.
@@ -509,7 +511,8 @@ To **resume**, the Architect names the existing bundle id (or speccen lists the 
 ### Step 4 — Resume Session Protocol
 
 1. Read `{{FOLDER_NAME}}/STATE.md` — the live state pointer — and resolve the **effective mode**
-   for the current phase from the config files (see **Configuration**).
+   for the current phase from the config files (see **Configuration**). Then regenerate
+   `index.md`, so files added since the last session — an ADR, a file under `files/` — are listed.
 2. Skim the most recent entries in `{{FOLDER_NAME}}/log.md` for narrative context of
    what just happened.
 3. Read the current phase's `summary.md` (compact, bounded-size) for work done and
@@ -586,7 +589,11 @@ steps:
    Architect's transition signal (verbatim) — or, in `autonomous` mode, "delegate gate check
    passed" with a link to the phase summary — and the effective mode with its source (see
    **Configuration** → Audit) under today's date.
-5. **Auto-commit phase completion** (if in git repository):
+5. Regenerate `index.md` from the current frontmatter of all bundle files, following the
+   grouping and ordering rules in the `index.md` section below (grouped by type: ADRs
+   first, then control files, then phases in numeric order — never interleaved), so the
+   commit in step 6 carries a current index.
+6. **Auto-commit phase completion** (if in git repository):
    - Check if the bundle folder is inside a git repository
    - Check if git is properly configured (user.name and user.email set)
    - If both checks pass, commit the changed bundle files — only those, never other uncommitted
@@ -606,9 +613,6 @@ steps:
    - This creates an automatic checkpoint at each phase boundary for audit trail
    - Stage only files git does not ignore: never stage `speccen-config.local.yaml`, and never
      force-add an ignored file
-6. Regenerate `index.md` from the current frontmatter of all bundle files, following the
-   grouping and ordering rules in the `index.md` section below (grouped by type: ADRs
-   first, then control files, then phases in numeric order — never interleaved).
 7. Load the skill for the new phase.
 8. Announce the phase transition to the Architect before proceeding.
 
@@ -1208,7 +1212,9 @@ The worker starts cold: the work order and the files on disk are all it has.
 **One writer.** Only the main session writes `STATE.md`, `log.md` and `index.md`, and only the
 main session commits. When a worker returns, check that every output exists, is complete and has
 valid frontmatter before you use it. If an output is missing or incomplete, run the unit inline
-once. In `autonomous` mode, a unit that still fails is a gate-test failure.
+once. In `autonomous` mode, a unit that still fails is a gate-test failure. Once the outputs
+are in place — the worker's or the inline run's — regenerate `index.md`: once per unit, or once
+after the last of a batch of parallel units (see **`index.md`** → When it is regenerated).
 
 Log each launched unit in `log.md`: `- **HH:MM — [PHASE] subagent** — [unit] · model:
 [tier] → [model] ([source])`.
@@ -1399,9 +1405,29 @@ type: Log
 
 `index.md` is **regenerable** — it holds links and descriptions only, no live state.
 It is rebuilt from the frontmatter (`type`, `phase`, `status`, `description`, `audience`)
-of every bundle file whenever the bundle changes (the config files and the files under
+of every bundle file at the moments listed below (the config files and the files under
 `files/`, which have none, are handled below). Never hand-maintain live state here; that
 belongs in `STATE.md`.
+
+### When it is regenerated
+
+The index follows the files: whoever opens it sees every file the bundle holds, with its
+current status. A regeneration is always a full rebuild from the files on disk. Only the main
+session writes `index.md` (see **Subagent Execution** → One writer).
+
+- **When a file is written.** Regenerate in the same step that creates a bundle file, or that
+  changes a frontmatter value the index shows (`status`, `description`). Files written back to
+  back in one step — the audience documents, several prototype records — share one
+  regeneration, right after the last of them.
+- **When a worker returns.** After you have checked a unit's outputs (Subagent Execution → One
+  writer) — once per unit, or once after the last of a batch of parallel units.
+- **When the Architect adds a file.** During a session, a new ADR is listed by **ADR Protocol**,
+  step 8. Whatever the Architect added between sessions — an ADR, a file under `files/` — is
+  listed at resume (Resume Session Protocol, step 1).
+- **Before every commit of the bundle.** The Phase Transition Protocol regenerates before it
+  commits, and Phase 06 regenerates before its final commit — every commit carries a current
+  index.
+- **At bundle creation.** Once the skeleton exists (New Session Protocol, step 4).
 
 ### Grouping and ordering rules
 

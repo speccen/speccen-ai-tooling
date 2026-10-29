@@ -8,6 +8,8 @@ description: the Implementation Phase of speccen. Use when executing an approved
 
 > File paths, frontmatter, anchors, and the navigation bar in this skill follow the
 > **Bundle & File Naming Conventions** defined in `skills/00-governing-workflow/SKILL.md`.
+> Regenerate `index.md` in the step that creates a bundle file or changes its `status` or
+> `description` (governing skill → `index.md` → When it is regenerated).
 > Every `phase.md` and `summary.md` carries the navigation bar directly under its H1 title;
 > `doc-*.md` and ADR files do not.
 > Phase 05 writes to `{{FOLDER_NAME}}/phase-05-implementation/` (`phase.md`, `summary.md`).
@@ -405,6 +407,7 @@ Update `{{FOLDER_NAME}}/STATE.md`:
 - [ ] The Phase 04 Test Plan's tests are written and passing (or explicitly waived, recorded as deviations)
 - [ ] Test assertions derive from the plan/contract, not from the just-written code
 - [ ] `STATE.md` is updated after each phase
+- [ ] `index.md` lists every bundle file this phase wrote, with its current `status` and `description`
 - [ ] `autonomous`: `## Delegate gate check` is written in the summary, with evidence for every item
 
 ### Phase 05b complete when:
