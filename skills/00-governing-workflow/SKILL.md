@@ -1,5 +1,5 @@
 ---
-name: speccen-governing-workflow
+name: governing-workflow
 description: Governs speccen for software development and refactoring. Use when starting or resuming a structured analysis session with a Software Architect. Orchestrates all other workflow skills across phases.
 argument-hint: "['<feature-name>' — optional; speccen derives the bundle location and asks for anything missing]"
 ---
@@ -393,7 +393,7 @@ The tool's real constraints (Claude Code):
   keep it, but it is the fallback, not the default.
 
 **A series of decisions** — not one pick, but several that depend on each other — is put to
-the Architect with the **`speccen-interview`** skill (`skills/interview/SKILL.md`), in rounds.
+the Architect with the **`interview`** skill (`skills/interview/SKILL.md`), in rounds.
 The interview uses its own format — a numbered list of clear questions, each with a proposed
 answer — not the `AskUserQuestion` tool.
 Phases 01, 03 and 04 use it in both modes — in `autonomous` mode the delegate answers and records
@@ -1069,7 +1069,7 @@ answer could reasonably have gone another way and it affects the work product, r
 `delegated-decisions.md`. Pure style within the conventions is not recorded.
 
 In an interview (Phases 01, 03 and 04) you work through the same numbered questions the Architect
-would get (`speccen-interview`). Every question you answer there is a delegated decision, linked
+would get (`interview`). Every question you answer there is a delegated decision, linked
 to its question reference — for example `01/7` — so a reviewer can follow your decision tree.
 
 A decision is **material** if it would change an acceptance scenario, a public contract, the data
@@ -1106,7 +1106,7 @@ A stop produces:
   evidence;
 - a `log.md` entry recording the stop;
 - the **stop round**: the stopped questions as one numbered interview round, each with your
-  proposed answer (`speccen-interview` → Stop rounds).
+  proposed answer (`interview` → Stop rounds).
 
 Collect before you stop: carry on only with work that does not depend on the open questions, and
 put them to the Architect together. Then wait. The Architect's answers are logged verbatim
@@ -1148,7 +1148,7 @@ description: Decisions taken under delegation in autonomous mode — review, ado
 - The status is `DELEGATED`. Only the Architect decides `ADOPTED` (optionally pointing to an ADR
   the Architect writes) or `OVERRIDDEN` (the Architect writes an ADR — it can be scribed on
   request — and the ADR Protocol re-enters Phase 03). You record the status the Architect states
-  in the review round (`speccen-interview` → The review round), and never choose one.
+  in the review round (`interview` → The review round), and never choose one.
 - A delegated decision reaches the durable store only if the Architect adopts it as an ADR and
   promotes it in Phase 06, Step 6.
 - Review surface: each phase `summary.md` shows the number of delegated decisions with a link;
@@ -1168,7 +1168,7 @@ passed, the delegated decisions recorded, any stops and their answers, and the p
 graduation proposal. When any delegated decision or gate check exists, the report also
 recommends the Retrospective (Phase 07), which audits them against the code; only the Architect
 starts it. It also lists any prototype branches left for the Architect to delete. Then offer the **review
-round** (`speccen-interview` → The review round): every delegated decision and every pending
+round** (`interview` → The review round): every delegated decision and every pending
 graduation candidate, as one numbered interview.
 
 ---
@@ -1966,7 +1966,7 @@ degraded: stale projections (`index.md`/`timeline.md`), missing inverse edges, d
 **fragmented tags** (`rule-engine` vs `ruleengine` coined on two branches), and **contradictory
 decisions** that both landed silently. These are **merge-time** concerns, not in-flight ones.
 
-The **`speccen-reconcile`** skill performs this cleanup — a **repo-level store-maintenance
+The **`reconcile`** skill performs this cleanup — a **repo-level store-maintenance
 operation, not a phase** (no bundle, no `STATE.md`, Git-event-triggered rather than
 Architect-gated). Run it on main after a branch merges in: it regenerates the projections and
 repairs mechanical graph inconsistencies on its own, and **flags the judgment calls** (tag
@@ -1992,7 +1992,7 @@ These rules apply across all phases and all skills:
    worktrees outside the working tree (or as standalone code in the bundle); it is never merged
    or pushed and never becomes production code.
    The durable store (`.speccen/`) is written only at Phase 06 close-out
-   (graduation), by explicit Architect-initiated direct capture, or by `speccen-reconcile` (the
+   (graduation), by explicit Architect-initiated direct capture, or by `reconcile` (the
    repo-level maintenance operation run on main — see Concurrent team use and reconciliation) —
    never silently, never mid-workflow.
 2. The codebase is never read directly in chat — reading happens via Claude Code CLI or Copilot CLI.

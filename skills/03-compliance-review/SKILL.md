@@ -1,5 +1,5 @@
 ---
-name: speccen-compliance-review
+name: compliance-review
 description: the Compliance & Review Phase of speccen. Use when iterating analysis based on Software Architect ADR annotations, and optionally prototyping competing approaches. Ensures full compliance before advancing to specification.
 ---
 
@@ -274,7 +274,7 @@ criteria are met:
 **Handling unresolved open questions:**
 
 First put the open questions **and every undecided ADR** (`status: PENDING`) through the
-**`speccen-interview`** skill (`skills/interview/SKILL.md`). In `gated` mode the Architect
+**`interview`** skill (`skills/interview/SKILL.md`). In `gated` mode the Architect
 answers; in `autonomous` mode the delegate answers what the basis decides and puts the rest to
 the Architect as one stop round:
 

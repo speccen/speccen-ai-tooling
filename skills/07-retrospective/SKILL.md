@@ -1,5 +1,5 @@
 ---
-name: speccen-retrospective
+name: retrospective
 description: Optional post-06 pass of speccen. Use when the Architect requests a review of the implemented code against the bundle's plan, project conventions, and security standards. Produces a bundle-native Retrospective Report and, optionally, GitHub Issues. In a bundle that ran any phase autonomous, it also audits the delegate's decisions and gate checks against the code. No code is modified.
 ---
 

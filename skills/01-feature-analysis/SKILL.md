@@ -1,5 +1,5 @@
 ---
-name: speccen-feature-analysis
+name: feature-analysis
 description: Phase 01 of speccen. Use when capturing and structuring a deep understanding of a request — an idea, feature, refactoring or fix — based on Architect and user input. No codebase access. No implementation.
 ---
 
@@ -76,7 +76,7 @@ Phase 01 is **discovery**: the Architect may not know yet where this request wil
 interview makes clear what is known, what is assumed and what is still open — it does not force
 decisions.
 
-Run the **`speccen-interview`** skill (`skills/interview/SKILL.md`) — rounds of numbered, clear
+Run the **`interview`** skill (`skills/interview/SKILL.md`) — rounds of numbered, clear
 questions, each with a proposed answer — over what Step 2 found open. In `gated` mode the
 Architect answers; in `autonomous` mode the delegate answers the same questions (see **Mode
 behaviour**).
@@ -174,7 +174,7 @@ settles it: Phase 02 (facts in the code), Phase 03 (decisions) or Phase 04 (acce
 and those marked "for Phase 02". Only a question that blocks Phase 02 may hold the phase. If
 there are none, state that explicitly.
 
-**Interview** (under the `interview` anchor) — one table per round, as the `speccen-interview`
+**Interview** (under the `interview` anchor) — one table per round, as the `interview`
 skill defines: dependencies, the proposed answer, and who answered.
 
 **Outcome** (under the `outcome` anchor) — A one-to-three sentence statement of what this

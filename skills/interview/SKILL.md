@@ -1,5 +1,5 @@
 ---
-name: speccen-interview
+name: interview
 description: Works through the open decisions of a speccen phase in strict rounds — a numbered list of clear questions, each with a proposed answer. In gated mode the Architect answers; in autonomous mode the delegate answers from the decision basis and records the same questions, so the decision tree stays traceable. Used in Phases 01, 03 and 04, for autonomous stops, and for the end-of-run review.
 metadata:
   inspired-by: "grilling, by Matt Pocock"

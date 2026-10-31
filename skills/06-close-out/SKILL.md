@@ -1,5 +1,5 @@
 ---
-name: speccen-close-out
+name: close-out
 description: the Close-out Phase of speccen. Use after an implementation is accepted (by the Architect, or by its delegate in autonomous mode), to produce three audience-targeted documents (executive, business, technical) as expansion seeds, plus deviations, learnings, and results. No further code changes.
 ---
 
@@ -247,7 +247,7 @@ Phase 03, and the lessons of rejected Phase 03 prototypes.
 
 2. **Discretionary — promotions.** For the remaining candidates, **propose** to the Architect
    which look genuinely project-wide (with the evidence for each), and let the Architect
-   decide. Put the choice to the Architect as an interview round (**`speccen-interview`**) —
+   decide. Put the choice to the Architect as an interview round (**`interview`**) —
    one numbered question per candidate, `promote` or `keep local`, each with your proposed answer
    and its evidence. Promote only those
    the Architect approves. Default is *stays local* — a feature-specific ADR, deviation, or
@@ -417,7 +417,7 @@ Steps 6 to 9 change:
   **Autonomous Execution** (Transitions and the end of a run). Name the optional passes; do not
   start them. If any delegated decision or gate check exists, recommend the Retrospective.
 - **Deciding the proposal later.** When the Architect resumes and decides, put the proposal
-  through the review round (`speccen-interview` → The review round), write the approved entries in the Durable
+  through the review round (`interview` → The review round), write the approved entries in the Durable
   Store entry format, update the feature node's `produced` list and the inverse `produced-by`
   edges, regenerate the store index and timeline, and set `Pending Architect Action` to `none`
   once no review is outstanding.

@@ -1,5 +1,5 @@
 ---
-name: speccen-specification
+name: specification
 description: the Specification Phase of speccen. Use when producing a detailed, phase-structured Implementation Plan based on completed analysis, assembling the complete specification (intent + requirements/acceptance scenarios), together with forward-looking executive and business stakeholder seeds. No code is written. Requires explicit Architect go signal to advance to implementation.
 ---
 
@@ -165,7 +165,7 @@ here — link to it; this subsection is the to-be view only.
 #### Strategy Evaluation (if multiple approaches exist)
 
 Settle any material choice that the analysis and the ADRs leave open with the
-**`speccen-interview`** skill (`skills/interview/SKILL.md`) before you write the plan. In
+**`interview`** skill (`skills/interview/SKILL.md`) before you write the plan. In
 `autonomous` mode the delegate answers what the basis decides and puts the rest to the Architect
 as one stop round.
 
