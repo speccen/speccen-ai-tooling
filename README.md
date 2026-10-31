@@ -117,10 +117,10 @@ the project folder are offered the marketplace and the plugin:
 On Claude Code, use the shortcut command:
 
 ```
-/speccen:speccen-start
+/speccen:start
 ```
 
-(Type `speccen-start` in the command picker to filter to it. It takes an optional feature name;
+(Type `start` in the command picker to filter to it. It takes an optional feature name;
 the workflow asks for anything missing.) The command is a thin shortcut — it defers to the
 Governing Workflow skill, which is the single source of truth.
 

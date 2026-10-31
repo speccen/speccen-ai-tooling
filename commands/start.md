@@ -1,4 +1,5 @@
 ---
+name: start
 description: Start (or resume) a speccen workflow — shortcut to the governing workflow skill.
 argument-hint: "['<feature-name>' — optional; the workflow asks for anything missing]"
 ---
