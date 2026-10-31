@@ -5,7 +5,7 @@ Reference artifacts that set the quality bar for what the workflow produces.
 ## `pump-safety-rules-refactor.html`
 
 A worked example of a **Phase 08 Reference** — the layered,
-designed HTML page that the `speccen-reference` skill produces.
+designed HTML page that the `reference` skill produces.
 
 It documents a fictional water-pump safety-rule refactor on a generic rule engine
 (Specification + Remedy + FactBag). The subject is invented; the **structure and craft are

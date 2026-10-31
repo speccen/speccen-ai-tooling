@@ -1,5 +1,5 @@
 ---
-name: speccen-code-analysis
+name: code-analysis
 description: the Code Analysis Phase of speccen. Use when performing a deep analysis of an existing codebase — architecture, patterns, performance, coding style, and project conventions. No implementation.
 ---
 

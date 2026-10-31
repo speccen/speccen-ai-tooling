@@ -1,5 +1,5 @@
 ---
-name: speccen-reconcile
+name: reconcile
 description: Reconcile the speccen durable store after branch worktrees merge into main. Not a workflow phase — a repo-level store-maintenance operation. Regenerates derived projections, repairs mechanical graph inconsistencies, and flags the judgment calls (tag fragmentation, contradictory decisions) for a human. Use after merging concurrent speccen work into the main branch.
 ---
 

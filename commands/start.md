@@ -6,7 +6,7 @@ argument-hint: "['<feature-name>' — optional; the workflow asks for anything m
 
 Start the speccen workflow.
 
-Load the governing workflow skill, `speccen-governing-workflow`
+Load the governing workflow skill, `governing-workflow`
 (`skills/00-governing-workflow/SKILL.md` in this plugin), and follow its **Session Start
 Protocol** from Step 1 — resolve the bundle via the structured question set, then proceed
 under the governing skill's orchestration.

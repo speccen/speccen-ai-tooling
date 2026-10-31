@@ -660,7 +660,7 @@ a goal of this project today.
   development.
 - **A team runs speccen concurrently** — each developer in their own git worktree, each a
   self-contained single-Architect run. The durable store is the shared memory; Git reconciles
-  it on merge. After branches merge into main, the **`speccen-reconcile`** skill — a repo-level
+  it on merge. After branches merge into main, the **`reconcile`** skill — a repo-level
   store operation, not a phase — regenerates the projections, repairs mechanical graph
   inconsistencies, and flags the judgment calls (tag fragmentation, contradictory decisions)
   for a human.

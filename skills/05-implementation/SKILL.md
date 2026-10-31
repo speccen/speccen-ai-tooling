@@ -1,5 +1,5 @@
 ---
-name: speccen-implementation
+name: implementation
 description: the Implementation Phase of speccen. Use when executing an approved Implementation Plan, and handling rejection and revert cycles. Close-out of the completed work is handled by the separate Close-out skill (Phase 06).
 ---
 

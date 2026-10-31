@@ -1,5 +1,5 @@
 ---
-name: speccen-reference
+name: reference
 description: Optional post-06 pass of speccen. Use when the Architect requests a comprehensive technical reference for the implemented feature. Fully self-contained; sources the whole bundle. Produces a layered HTML reference (and a reduced Markdown projection) for the development team. No code is modified.
 ---
 
